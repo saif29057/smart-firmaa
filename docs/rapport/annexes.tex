@@ -1,0 +1,66 @@
+\appendix
+\chapter{Annexes}
+
+\section{Endpoints API}
+\begin{longtable}{p{5cm}p{2cm}p{7cm}}
+\caption{Documentation synthétique des APIs}\\
+\toprule
+\textbf{Endpoint} & \textbf{Méthode} & \textbf{Description} \\
+\midrule
+\texttt{/api/auth/register/} & POST & Inscription utilisateur. \\
+\texttt{/api/auth/login/} & POST & Connexion et retour token. \\
+\texttt{/api/auth/logout/} & POST & Déconnexion et suppression token. \\
+\texttt{/api/auth/profile/} & GET & Profil connecté. \\
+\texttt{/api/auth/profile/update/} & PUT & Mise à jour profil. \\
+\texttt{/api/auth/users/} & GET & Liste utilisateurs admin. \\
+\texttt{/api/weather/current/} & GET & Météo actuelle. \\
+\texttt{/api/weather/forecast/} & GET & Prévisions météo. \\
+\texttt{/api/news/} & GET & Actualités filtrées. \\
+\texttt{/api/news/categories/} & GET & Catégories d'actualités. \\
+\texttt{/api/analysis/upload/} & POST & Upload image et diagnostic. \\
+\texttt{/api/analysis/history/} & GET & Historique analyses. \\
+\texttt{/api/analysis/<id>/} & GET & Détail analyse. \\
+\texttt{/api/chatbot/chat/} & POST & Message chatbot. \\
+\texttt{/api/chatbot/history/} & GET & Historique chatbot. \\
+\texttt{/api/chatbot/clear/} & DELETE & Effacer historique chatbot. \\
+\texttt{/api/messaging/inbox/} & GET & Messages reçus. \\
+\texttt{/api/messaging/sent/} & GET & Messages envoyés. \\
+\texttt{/api/messaging/send/} & POST & Envoyer message. \\
+\texttt{/api/messaging/<id>/} & GET & Détail message. \\
+\texttt{/api/messaging/<id>/delete/} & DELETE & Supprimer message. \\
+\texttt{/api/messaging/unread/count/} & GET & Compteur non lus. \\
+\texttt{/crops/predict\_crop/} & GET & Recommandation culture. \\
+\texttt{/crops/locations/} & GET & Liste villes disponibles. \\
+\bottomrule
+\end{longtable}
+
+\section{Commandes utiles}
+\begin{lstlisting}[language=bash]
+# Backend
+cd backend
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+
+# Frontend
+cd frontend
+npm install
+npm start
+
+# Compilation Overleaf
+# Ouvrir docs/rapport/main.tex puis compiler avec biber si necessaire.
+\end{lstlisting}
+
+\section{Extrait de configuration API frontend}
+\begin{lstlisting}[language=JavaScript]
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Token ${token}`;
+  }
+  return config;
+});
+\end{lstlisting}
+
+\section{Classes CNN}
+Le CNN couvre 38 classes : pommier, myrtillier, cerisier, maïs, vigne, orange, pêcher, poivron, pomme de terre, framboisier, soja, courge, fraisier et tomate, avec états sains et maladies telles que tavelure, black rot, rouille, mildiou, alternariose, septoriose, oïdium, acariens, virus TYLCV et mosaïque.

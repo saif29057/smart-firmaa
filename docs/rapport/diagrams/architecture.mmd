@@ -1,0 +1,35 @@
+flowchart LR
+    subgraph Client
+        React[React TypeScript]
+        Axios[Axios services]
+    end
+    subgraph API
+        Django[Django REST Framework]
+        Auth[authentication]
+        Weather[weather]
+        Analysis[analysis]
+        Crops[crops]
+        Chatbot[chatbot]
+        Messaging[messaging]
+        News[news]
+    end
+    subgraph Storage
+        DB[(SQLite)]
+        Media[(Media)]
+        Models[(PKL/H5)]
+    end
+    React --> Axios --> Django
+    Django --> Auth
+    Django --> Weather
+    Django --> Analysis
+    Django --> Crops
+    Django --> Chatbot
+    Django --> Messaging
+    Django --> News
+    Auth --> DB
+    Messaging --> DB
+    Analysis --> DB
+    Chatbot --> DB
+    Analysis --> Media
+    Analysis --> Models
+    Crops --> Models

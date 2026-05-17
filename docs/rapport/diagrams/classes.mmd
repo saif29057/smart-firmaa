@@ -1,0 +1,31 @@
+classDiagram
+    class User {
+      int id
+      string username
+      string email
+      string role
+      string phone
+      image avatar
+    }
+    class Message {
+      int id
+      string subject
+      text content
+      boolean is_read
+    }
+    class AnalysisLog {
+      int id
+      image image
+      json result
+      float confidence
+      float processing_time
+    }
+    class ChatMessage {
+      int id
+      text message
+      text response
+    }
+    User "1" --> "*" Message : sender
+    User "1" --> "*" Message : recipient
+    User "1" --> "*" AnalysisLog
+    User "1" --> "*" ChatMessage

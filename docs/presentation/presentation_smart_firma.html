@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Presentation PFE - Smart Firma</title>
+  <style>
+    :root {
+      --ink: #203126;
+      --muted: #65746a;
+      --paper: #fffdf7;
+      --sand: #f3ead9;
+      --green: #2f7d4f;
+      --green2: #72a65a;
+      --brown: #7b5935;
+      --gold: #d6a84f;
+      --blue: #376f8f;
+      --red: #b94d45;
+      --line: #d8c9ad;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #e7dfd1;
+      color: var(--ink);
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+    .deck {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+      padding: 28px 0;
+    }
+    .slide {
+      width: 1280px;
+      height: 720px;
+      background: var(--paper);
+      position: relative;
+      overflow: hidden;
+      padding: 54px 66px;
+      box-shadow: 0 18px 50px rgba(42, 31, 17, .18);
+      page-break-after: always;
+    }
+    .slide.dark {
+      background: linear-gradient(135deg, #1d3328 0%, #314d36 58%, #6b5833 100%);
+      color: #fffaf0;
+    }
+    .slide.band::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 16px;
+      height: 100%;
+      background: linear-gradient(var(--green), var(--gold));
+    }
+    .kicker {
+      color: var(--green);
+      text-transform: uppercase;
+      font-size: 14px;
+      letter-spacing: .12em;
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+    .dark .kicker { color: #e3c46c; }
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      font-size: 58px;
+      line-height: 1.03;
+      letter-spacing: -.02em;
+      max-width: 940px;
+    }
+    h2 {
+      font-size: 40px;
+      line-height: 1.12;
+      letter-spacing: -.015em;
+      max-width: 980px;
+    }
+    h3 {
+      font-size: 22px;
+      line-height: 1.2;
+      color: var(--ink);
+    }
+    .dark h3 { color: #fffaf0; }
+    .subtitle {
+      margin-top: 22px;
+      font-size: 22px;
+      line-height: 1.45;
+      color: var(--muted);
+      max-width: 900px;
+    }
+    .dark .subtitle { color: #efe1c4; }
+    .footer {
+      position: absolute;
+      left: 66px;
+      right: 66px;
+      bottom: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #887b66;
+      font-size: 13px;
+      border-top: 1px solid rgba(121, 95, 57, .25);
+      padding-top: 14px;
+    }
+    .dark .footer { color: #e3d5b7; border-color: rgba(255,255,255,.22); }
+    .hero-mark {
+      position: absolute;
+      right: -80px;
+      bottom: -90px;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      border: 70px solid rgba(226, 197, 116, .22);
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 52px;
+      max-width: 900px;
+    }
+    .metric {
+      padding: 18px 20px;
+      border-left: 4px solid var(--gold);
+      background: rgba(255,255,255,.12);
+      min-height: 96px;
+    }
+    .metric .value {
+      font-size: 32px;
+      font-weight: 800;
+      display: block;
+    }
+    .metric .label {
+      font-size: 14px;
+      color: inherit;
+      opacity: .84;
+      margin-top: 6px;
+      display: block;
+    }
+    .cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 34px;
+      margin-top: 38px;
+    }
+    .cols.three { grid-template-columns: repeat(3, 1fr); }
+    .panel {
+      background: #f7f2e8;
+      border: 1px solid var(--line);
+      padding: 24px;
+      min-height: 160px;
+    }
+    .panel strong {
+      color: var(--green);
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      display: block;
+      margin-bottom: 12px;
+    }
+    ul {
+      margin: 14px 0 0 18px;
+      padding: 0;
+      font-size: 18px;
+      line-height: 1.55;
+      color: var(--muted);
+    }
+    li { margin: 6px 0; }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 32px;
+      font-size: 17px;
+    }
+    .table th {
+      text-align: left;
+      color: var(--green);
+      font-size: 13px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      border-bottom: 2px solid var(--green);
+      padding: 10px 12px;
+    }
+    .table td {
+      padding: 13px 12px;
+      border-bottom: 1px solid #e4d8c2;
+      vertical-align: top;
+    }
+    .tag {
+      display: inline-block;
+      background: #e9f2e6;
+      color: var(--green);
+      padding: 5px 10px;
+      font-size: 13px;
+      font-weight: 700;
+      margin: 4px 4px 0 0;
+    }
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      margin-top: 46px;
+    }
+    .node {
+      flex: 1;
+      min-height: 95px;
+      background: #f6f0e4;
+      border: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 12px;
+      font-weight: 750;
+    }
+    .arrow {
+      width: 30px;
+      height: 2px;
+      background: var(--brown);
+      position: relative;
+      flex: 0 0 30px;
+    }
+    .arrow::after {
+      content: "";
+      position: absolute;
+      right: -1px;
+      top: -5px;
+      border-left: 9px solid var(--brown);
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+    }
+    .diagram {
+      margin-top: 36px;
+      display: grid;
+      grid-template-columns: 1.2fr 1.35fr 1.2fr;
+      gap: 24px;
+      align-items: center;
+    }
+    .stack {
+      border: 1px solid var(--line);
+      background: #f7f2e8;
+      padding: 20px;
+      min-height: 420px;
+    }
+    .stack h3 { margin-bottom: 16px; color: var(--green); }
+    .mini {
+      padding: 11px 12px;
+      background: #fffaf0;
+      border: 1px solid #e0d2b8;
+      margin: 9px 0;
+      font-size: 15px;
+      font-weight: 650;
+    }
+    .center-api {
+      min-height: 420px;
+      border: 2px solid var(--green);
+      background: #edf5e9;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+    }
+    .center-api .big { font-size: 34px; font-weight: 850; color: var(--green); }
+    .center-api .small { color: var(--muted); margin-top: 10px; font-size: 17px; }
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-top: 46px;
+    }
+    .sprint {
+      background: #f7f2e8;
+      border-top: 6px solid var(--green);
+      padding: 22px;
+      min-height: 320px;
+    }
+    .sprint:nth-child(2) { border-color: var(--blue); }
+    .sprint:nth-child(3) { border-color: var(--gold); }
+    .sprint:nth-child(4) { border-color: var(--brown); }
+    .sprint .num { font-size: 42px; font-weight: 850; color: var(--green); }
+    .sprint h3 { margin: 8px 0 12px; }
+    .quote {
+      margin-top: 54px;
+      border-left: 8px solid var(--gold);
+      padding: 24px 30px;
+      font-size: 28px;
+      line-height: 1.35;
+      background: rgba(255,255,255,.12);
+      max-width: 900px;
+    }
+    .bar-grid {
+      margin-top: 36px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      max-width: 760px;
+    }
+    .bar-row {
+      display: grid;
+      grid-template-columns: 180px 1fr 80px;
+      gap: 16px;
+      align-items: center;
+      font-size: 17px;
+    }
+    .bar {
+      height: 18px;
+      background: #eadfc9;
+      position: relative;
+    }
+    .bar span {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      background: linear-gradient(90deg, var(--green), var(--gold));
+    }
+    .split {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: 48px;
+      margin-top: 38px;
+      align-items: start;
+    }
+    .badge-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+    .badge {
+      background: #eef5ea;
+      border: 1px solid #bfd2b5;
+      padding: 10px 13px;
+      font-weight: 700;
+      color: var(--green);
+    }
+    @media print {
+      body { background: white; }
+      .deck { padding: 0; gap: 0; }
+      .slide { box-shadow: none; width: 100vw; height: 56.25vw; }
+    }
+  </style>
+</head>
+<body>
+<main class="deck">
+
+  <section class="slide dark">
+    <div class="hero-mark"></div>
+    <div class="kicker">Projet de fin d'études</div>
+    <h1>Smart Firma, une plateforme intelligente pour l'aide à la décision agricole</h1>
+    <p class="subtitle">Backend Django REST, frontend React/TypeScript, recommandation de cultures par Random Forest et diagnostic de maladies par CNN.</p>
+    <div class="meta-grid">
+      <div class="metric"><span class="value">2</span><span class="label">modules IA intégrés</span></div>
+      <div class="metric"><span class="value">7</span><span class="label">applications backend Django</span></div>
+      <div class="metric"><span class="value">2025-2026</span><span class="label">année universitaire</span></div>
+    </div>
+    <div class="footer"><span>Smart Firma</span><span>01</span></div>
+  </section>
+
+  <section class="slide band">
+    <div class="kicker">Plan</div>
+    <h2>Une soutenance structurée autour du besoin métier, de la solution et de sa réalisation technique.</h2>
+    <div class="cols three">
+      <div class="panel"><strong>Comprendre</strong><ul><li>Contexte</li><li>Problématique</li><li>Objectifs</li><li>Solution proposée</li></ul></div>
+      <div class="panel"><strong>Concevoir</strong><ul><li>Besoins fonctionnels</li><li>Besoins non fonctionnels</li><li>Architecture</li><li>Diagrammes UML</li></ul></div>
+      <div class="panel"><strong>Réaliser</strong><ul><li>SCRUM</li><li>Frontend / Backend</li><li>ML et Deep Learning</li><li>Résultats et perspectives</li></ul></div>
+    </div>
+    <div class="footer"><span>Plan de présentation</span><span>02</span></div>
+  </section>
+
+  <section class="slide band">
+    <div class="kicker">Contexte</div>
+    <h2>L'agriculture tunisienne nécessite des outils numériques capables de centraliser les décisions techniques.</h2>
+    <div class="cols">
+      <div class="panel">
+        <strong>Enjeux agricoles</strong>
+        <ul>
+          <li>Variabilité climatique et stress hydrique.</li>
+          <li>Risque de maladies végétales et pertes de rendement.</li>
+          <li>Besoin de recommandations adaptées aux régions tunisiennes.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <strong>Enjeux numériques</strong>
+        <ul>
+          <li>Informations dispersées entre météo, conseil et diagnostic.</li>
+          <li>Manque d'intégration entre services agricoles.</li>
+          <li>Besoin d'une interface simple pour agriculteurs et administrateurs.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer"><span>Cadre général</span><span>03</span></div>
+  </section>
+
+  <section class="slide dark">
+    <div class="kicker">Problématique</div>
+    <h2>Comment aider l'agriculteur à décider plus vite avec des informations fiables et contextualisées ?</h2>
+    <div class="quote">
+      Concevoir une plateforme web intelligente capable d'assister un agriculteur tunisien dans le diagnostic des maladies, la recommandation des cultures et l'accès aux services agricoles numériques.
+    </div>
+    <div class="footer"><span>Question centrale</span><span>04</span></div>
+  </section>
+
+  <section class="slide band">
+    <div class="kicker">Solution proposée</div>
+    <h2>Smart Firma regroupe les services agricoles essentiels dans une architecture web modulaire.</h2>
+    <div class="flow">
+      <div class="node">Utilisateur<br/>agriculteur ou admin</div>
+      <div class="arrow"></div>
+      <div class="node">Interface React<br/>pages et services</div>
+      <div class="arrow"></div>
+      <div class="node">API Django REST<br/>logique métier</div>
+      <div class="arrow"></div>
+      <div class="node">Données, APIs externes<br/>et modèles IA</div>
+    </div>
+    <div class="badge-list">
+      <span class="badge">Météo agricole</span>
+      <span class="badge">Recommandation culture</span>
+      <span class="badge">Diagnostic image</span>
+      <span class="badge">Chatbot agricole</span>
+      <span class="badge">Messagerie</span>
+      <span class="badge">Dashboard</span>
+    </div>
+    <div class="footer"><span>Vision solution</span><span>05</span></div>
+  </section>
+
+  <section class="slide band">
+    <div class="kicker">Besoins fonctionnels</div>
+    <h2>Les fonctionnalités couvrent l'accès, l'aide à la décision, l'assistance et la communication.</h2>
+    <table class="table">
+      <tr><th>Domaine</th><th>Besoins détectés dans le code</th></tr>
+      <tr><td>Authentification</td><td>Inscription, connexion, déconnexion, profil, rôle utilisateur/admin.</td></tr>
+      <tr><td>Agriculture</td><td>Météo, recommandation culture, diagnostic maladies, conseils agronomiques.</td></tr>
+      <tr><td>Communication</td><td>Messagerie interne, compteur non lus, chatbot agricole.</td></tr>
+      <tr><td>Administration</td><td>Dashboard admin, consultation utilisateurs via endpoint protégé.</td></tr>
+    </table>
+    <div class="footer"><span>Analyse fonctionnelle</span><span>06</span></div>
+  </section>
+
+  <section class="slide band">
+    <div class="kicker">Besoins non fonctionnels</div>
+    <h2>La solution doit être sécurisée, maintenable et adaptée à des traitements IA coûteux.</h2>
+    <div class="cols three">
+      <div class="panel"><strong>Sécurité</strong><ul><li>TokenAuthentication DRF</li><li>Permissions API</li><li>Validation des fichiers</li></ul></div>
+      <div class="panel"><strong>Performance</strong><ul><li>Chargement paresseux CNN</li><li>Cache LRU géocodage</li><li>Modèles sérialisés</li></ul></div>
+      <div class="panel"><strong>Maintenabilité</strong><ul><li>Applications Django séparées</li><li>Services Axios</li><li>Composants React dédiés</li></ul></div>
+    </div>
+    <div class="footer"><span>Contraintes qualité</span><span>07</span></div>
+  </section>
+
+  <section class="slide band">
+    <div class="kicker">Architecture globale</div>
+    <h2>Le projet suit une architecture trois tiers : présentation, API métier et données/modèles.</h2>
+    <div class="diagram">
+      <div class="stack">
+        <h3>Frontend React</h3>
+        <div class="mini">Pages : Home, Login, Dashboard</div>
+        <div class="mini">Weather, Chatbot, Analysis</div>
+        <div class="mini">RecommendationForm</div>
+        <div class="mini">AuthContext + Axios</div>
+      </div>
+      <div class="center-api">
+        <div class="big">Django REST API</div>
+        <div class="small">authentication · weather · news · crops · analysis · chatbot · messaging</div>
+      </div>
+      <div class="stack">
+        <h3>Données & services</h3>
+        <div class="mini">SQLite</div>
+        <div class="mini">Media images</div>
+        <div class="mini">Random Forest .pkl</div>
+        <div class="mini">CNN Keras .h5</div>
+        <div class="mini">Open-Meteo · NewsAPI · OpenAI</div>
+      </div>
+    </div>
+    <div class="footer"><span>Architecture logicielle</span><span>08</span></div>
+  </section>
+
+  <section class="slide band">
+    <div class="kicker">Diagramme de cas d'utilisation</div>
+    <h2>Trois acteurs principaux interagissent avec des services agricoles et administratifs.</h2>
+    <div class="cols three">
+      <div class="panel"><strong>Visiteur</strong><ul><li>S'inscrire</li><li>Se connecter</li><li>Consulter l'accueil</li></ul></div>
+      <div class="panel"><strong>Utilisateur</strong><ul><li>Dashboard</li><li>Météo</li><li>Recommandation</li><li>Analyse image</li><li>Chatbot</li><li>Messages</li></ul></div>
+      <div class="panel"><strong>Administrateur</strong><ul><li>Dashboard admin</li><li>Liste utilisateurs</li><li>Messagerie</li><li>Supervision</li></ul></div>
+    </div>
+    <div class="footer"><span>UML - cas d'utilisation</span><span>09</span></div>
+  </section>
+
+  <section class="slide band">
+    <div class="kicker">Base de données</div>
+    <h2>Le modèle persistant se concentre sur l'utilisateur, la communication et l'historique IA.</h2>
+    <div class="flow">
+      <div class="node">User<br/>role, phone, avatar</div>
+      <div class="arrow"></div>
+      <div class="node">Message<br/>sender / recipient</div>
+      <div class="arrow"></div>
+      <div class="node">AnalysisLog<br/>image, result, confidence</div>
+      <div class="arrow"></div>
+      <div class="node">ChatMessage<br/>message, response</div>
+    </div>
+    <table class="table">
+      <tr><th>Entité</th><th>Rôle</th></tr>
+      <tr><td>User</td><td>Identité, rôle et informations de profil.</td></tr>
+      <tr><td>Message</td><td>Communication interne entre utilisateurs.</td></tr>
+      <tr><td>AnalysisLog</td><td>Traçabilité des diagnostics par image.</td></tr>
+      <tr><td>ChatMessage</td><td>Historique des conversations avec l'assistant IA.</td></tr>
+    </table>
+    <div class="footer"><span>MCD / MLD</span><span>10</span></div>
+  </section>
+
+  <section class="slide band">
+    <div class="kicker">SCRUM</div>
+    <h2>Le développement est organisé en quatre sprints progressifs et livrables.</h2>
+    <div class="timeline">
+      <div class="sprint"><div class="num">01</div><h3>Socle applicatif</h3><ul><li>Django / React</li><li>Auth</li><li>Dashboards</li></ul></div>
+      <div class="sprint"><div class="num">02</div><h3>Services agricoles</h3><ul><li>Météo</li><li>News</li><li>Recommandation</li></ul></div>
+      <div class="sprint"><div class="num">03</div><h3>IA et diagnostic</h3><ul><li>Random Forest</li><li>CNN</li><li>Upload image</li></ul></div>
+      <div class="sprint"><div class="num">04</div><h3>Consolidation</h3><ul><li>Chatbot</li><li>Messagerie</li><li>Documentation</li></ul></div>
+    </div>
+    <div class="footer"><span>Gestion de projet</span><span>11</span></div>
+  </section>
+
+  <section class="slide band">
+    <div class="kicker">Réalisation frontend</div>
+    <h2>Le frontend React expose des interfaces spécialisées pour chaque usage métier.</h2>
+    <table class="table">
+      <tr><th>Interface</th><th>Rôle</th></tr>
+      <tr><td>Home</td><td>Présentation de Smart Firma et accès aux services.</td></tr>
+      <tr><td>Login/Register</td><td>Authentification et création de compte.</td></tr>
+      <tr><td>Dashboard</td><td>Vue synthétique utilisateur avec raccourcis agricoles.</td></tr>
+      <tr><td>Weather</td><td>Météo, prévisions, zones agro-écologiques et alertes.</td></tr>
+      <tr><td>Analysis</td><td>Upload image, diagnostic, confiance et recommandations.</td></tr>
+      <tr><td>Chatbot</td><td>Assistant agricole conversationnel.</td></tr>
+    </table>
+    <div class="footer"><span>Interfaces</span><span>12</span></div>
+  </section>
+
+  <section class="slide band">
+    <div class="kicker">Réalisation backend</div>
+    <h2>Le backend expose des APIs REST modulaires, sécurisées par permissions DRF.</h2>
+    <div class="cols">
+      <div class="panel">
+        <strong>Applications métier</strong>
+        <ul>
+          <li>authentication, messaging, weather, news</li>
+          <li>analysis, chatbot, crops</li>
+          <li>settings centralisés, CORS, media files</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <strong>Endpoints clés</strong>
+        <ul>
+          <li>/api/auth/login/</li>
+          <li>/api/analysis/upload/</li>
+          <li>/api/chatbot/chat/</li>
+          <li>/crops/predict_crop/</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer"><span>APIs REST</span><span>13</span></div>
+  </section>
+
+  <section class="slide band">
+    <div class="kicker">Machine Learning</div>
+    <h2>La recommandation de cultures suit une logique CRISP-DM et exploite des variables agro-climatiques.</h2>
+    <div class="flow">
+      <div class="node">Business<br/>aider le choix culture</div>
+      <div class="arrow"></div>
+      <div class="node">Data<br/>NPK, météo, pH</div>
+      <div class="arrow"></div>
+      <div class="node">Modeling<br/>Random Forest</div>
+      <div class="arrow"></div>
+      <div class="node">Deployment<br/>API crops</div>
+    </div>
+    <div class="split">
+      <div>
+        <h3>Dataset Tunisie</h3>
+        <ul><li>1710 observations</li><li>11 cultures tunisiennes</li><li>Zones Nord, Centre, Sud</li></ul>
+      </div>
+      <div>
+        <h3>Variables</h3>
+        <div class="badge-list">
+          <span class="badge">N</span><span class="badge">P</span><span class="badge">K</span><span class="badge">temperature</span><span class="badge">humidity</span><span class="badge">ph</span><span class="badge">rainfall</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer"><span>CRISP-DM</span><span>14</span></div>
+  </section>
+
+  <section class="slide band">
+    <div class="kicker">Deep Learning</div>
+    <h2>Le diagnostic de maladies repose sur un CNN Keras intégré directement dans l'API Django.</h2>
+    <div class="flow">
+      <div class="node">Image plante</div>
+      <div class="arrow"></div>
+      <div class="node">Validation<br/>type + 10 MB</div>
+      <div class="arrow"></div>
+      <div class="node">Prétraitement<br/>224x224 RGB</div>
+      <div class="arrow"></div>
+      <div class="node">CNN<br/>38 classes</div>
+      <div class="arrow"></div>
+      <div class="node">Top-3 + conseils</div>
+    </div>
+    <table class="table">
+      <tr><th>Composant</th><th>Détail</th></tr>
+      <tr><td>Architecture</td><td>Conv2D 32/64/128, MaxPooling, Dense 128, Dropout 0.5, Softmax 38.</td></tr>
+      <tr><td>Sortie</td><td>Classe, plante, maladie, confiance, recommandations.</td></tr>
+    </table>
+    <div class="footer"><span>CNN maladies végétales</span><span>15</span></div>
+  </section>
+
+  <section class="slide band">
+    <div class="kicker">Résultats</div>
+    <h2>Les premiers résultats valident l'intégration IA et l'utilité métier du prototype.</h2>
+    <div class="bar-grid">
+      <div class="bar-row"><span>RF général</span><div class="bar"><span style="width:99.55%"></span></div><strong>99.55%</strong></div>
+      <div class="bar-row"><span>RF Tunisie</span><div class="bar"><span style="width:95.61%"></span></div><strong>95.61%</strong></div>
+      <div class="bar-row"><span>CV Tunisie</span><div class="bar"><span style="width:94.44%"></span></div><strong>94.44%</strong></div>
+    </div>
+    <div class="cols" style="margin-top:42px">
+      <div class="panel"><strong>Fonctionnel</strong><ul><li>Authentification opérationnelle</li><li>Services REST modulaires</li><li>Interfaces agricoles spécialisées</li></ul></div>
+      <div class="panel"><strong>IA</strong><ul><li>Random Forest déployé</li><li>CNN intégré</li><li>Résultats sauvegardés</li></ul></div>
+    </div>
+    <div class="footer"><span>Validation</span><span>16</span></div>
+  </section>
+
+  <section class="slide band">
+    <div class="kicker">Sécurité et limites</div>
+    <h2>Le prototype est fonctionnel, mais certaines briques sont à renforcer avant production.</h2>
+    <div class="cols">
+      <div class="panel">
+        <strong>Sécurité existante</strong>
+        <ul>
+          <li>TokenAuthentication DRF.</li>
+          <li>Permissions IsAuthenticated / IsAdminUser.</li>
+          <li>Validation email, username, password et fichiers image.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <strong>Limites détectées</strong>
+        <ul>
+          <li>Pas de Docker ni CI/CD.</li>
+          <li>SQLite en développement.</li>
+          <li>Pas de JWT/OAuth dans le code.</li>
+          <li>Tests automatisés à compléter.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer"><span>Sécurité / DevOps</span><span>17</span></div>
+  </section>
+
+  <section class="slide dark">
+    <div class="kicker">Conclusion</div>
+    <h2>Smart Firma démontre comment une architecture web moderne peut intégrer l'IA pour améliorer la décision agricole.</h2>
+    <div class="cols">
+      <div class="metric"><span class="value">Acquis</span><span class="label">Plateforme modulaire, APIs REST, ML/DL intégrés, interfaces métier.</span></div>
+      <div class="metric"><span class="value">Perspectives</span><span class="label">PostgreSQL, Docker, CI/CD, données terrain, transfert learning, monitoring.</span></div>
+    </div>
+    <p class="subtitle" style="margin-top:42px">La prochaine étape consiste à transformer le prototype en solution robuste de production, enrichie par des données agricoles réelles et un suivi continu des performances IA.</p>
+    <div class="footer"><span>Conclusion générale</span><span>18</span></div>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,146 @@
+\documentclass[12pt,a4paper]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{csquotes}
+\usepackage[backend=biber,style=ieee]{biblatex}
+
+\addbibresource{bibliographie.bib}
+
+\geometry{left=2.8cm,right=2.4cm,top=2.5cm,bottom=2.5cm}
+\onehalfspacing
+\hypersetup{colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!50!black,citecolor=blue!50!black}
+
+\definecolor{sfgreen}{RGB}{38,120,75}
+\definecolor{sfbrown}{RGB}{106,76,42}
+\definecolor{sfgray}{RGB}{245,247,250}
+\definecolor{codegray}{RGB}{248,248,248}
+
+\lstdefinelanguage{mermaid}{
+  morekeywords={graph,flowchart,sequenceDiagram,classDiagram,erDiagram,stateDiagram-v2,participant,actor,as,subgraph,end,loop,alt,opt,rect,note,over,activate,deactivate},
+  sensitive=false,
+  morecomment=[l]{\%\%}
+}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  backgroundcolor=\color{codegray},
+  columns=fullflexible,
+  keepspaces=true
+}
+
+\graphicspath{{figures/}}
+
+\newcommand{\screenshotfigure}[3]{
+\begin{figure}[H]
+\centering
+\IfFileExists{figures/#1}{
+  \includegraphics[width=0.92\textwidth]{#1}
+}{
+  \fbox{
+    \begin{minipage}[c][6cm][c]{0.88\textwidth}
+    \centering
+    \textbf{Capture d'écran à insérer}\\[0.4cm]
+    Fichier attendu : \texttt{figures/#1}\\[0.2cm]
+    #2
+    \end{minipage}
+  }
+}
+\caption{#2}
+\label{#3}
+\end{figure}
+}
+
+\begin{document}
+
+\begin{titlepage}
+\centering
+\vspace*{1cm}
+{\Large République Tunisienne}\\[0.2cm]
+{\large Ministère de l'Enseignement Supérieur et de la Recherche Scientifique}\\[1.5cm]
+{\Huge\bfseries Rapport de Projet de Fin d'Etudes}\\[0.8cm]
+{\LARGE\bfseries Smart Firma}\\[0.3cm]
+{\Large Plateforme intelligente d'aide à la décision agricole}\\[1cm]
+\rule{0.85\textwidth}{0.5pt}\\[0.5cm]
+{\large Technologies principales : Django REST Framework, React, TypeScript, SQLite, TensorFlow/Keras, Scikit-learn, Open-Meteo, NewsAPI, OpenAI API}\\[0.5cm]
+\rule{0.85\textwidth}{0.5pt}\\[1.5cm]
+\begin{tabular}{ll}
+Réalisé par : & \textit{Nom de l'étudiant} \\
+Encadrant académique : & \textit{Nom de l'encadrant} \\
+Organisme d'accueil : & \textit{Smart Firma / organisme à compléter} \\
+Année universitaire : & 2025--2026 \\
+\end{tabular}
+\vfill
+{\large Mai 2026}
+\end{titlepage}
+
+\pagenumbering{roman}
+
+\chapter*{Remerciements}
+\addcontentsline{toc}{chapter}{Remerciements}
+Je tiens à exprimer ma profonde reconnaissance à mon encadrant académique pour ses orientations, ses remarques et son suivi tout au long de la réalisation de ce projet. Je remercie également l'équipe pédagogique pour la qualité de la formation reçue, ainsi que toutes les personnes ayant contribué directement ou indirectement à l'aboutissement de ce travail. Enfin, mes remerciements s'adressent aux utilisateurs et aux acteurs du domaine agricole dont les besoins ont inspiré la conception fonctionnelle de la plateforme Smart Firma.
+
+\chapter*{Dédicaces}
+\addcontentsline{toc}{chapter}{Dédicaces}
+Je dédie ce travail à ma famille, pour son soutien moral et ses encouragements continus, ainsi qu'à toutes les personnes qui m'ont accompagné durant mon parcours académique. Ce projet représente l'aboutissement d'un effort de recherche, de développement et d'apprentissage autour des technologies web et de l'intelligence artificielle appliquées à l'agriculture.
+
+\chapter*{Résumé}
+\addcontentsline{toc}{chapter}{Résumé}
+Smart Firma est une plateforme web intelligente destinée à accompagner les agriculteurs tunisiens dans leurs décisions quotidiennes. L'application regroupe plusieurs services : authentification, tableaux de bord, météo agricole, actualités, messagerie, chatbot spécialisé, recommandation de cultures et diagnostic de maladies végétales par image. Le frontend est développé avec React et TypeScript, tandis que le backend repose sur Django REST Framework. La solution intègre deux briques d'intelligence artificielle : un modèle Random Forest pour recommander les cultures selon les variables agro-climatiques et un réseau de neurones convolutif Keras pour classifier les maladies des plantes. Le rapport présente l'analyse du code source, l'architecture logicielle, les APIs REST, la base de données, la sécurité, la démarche SCRUM et la méthodologie CRISP-DM appliquée aux modules Machine Learning.
+
+\textbf{Mots-clés :} agriculture intelligente, Django, React, API REST, SCRUM, CRISP-DM, Random Forest, CNN, TensorFlow, Scikit-learn.
+
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+Smart Firma is an intelligent web platform designed to support Tunisian farmers in daily decision-making. The application provides authentication, dashboards, agricultural weather services, news, messaging, a specialized chatbot, crop recommendation and image-based plant disease diagnosis. The frontend is implemented with React and TypeScript, while the backend relies on Django REST Framework. The system integrates two artificial intelligence components: a Random Forest model for crop recommendation based on agro-climatic features and a Keras convolutional neural network for plant disease classification. This report analyses the source code, software architecture, REST APIs, database design, security mechanisms, SCRUM workflow and the CRISP-DM methodology applied to the Machine Learning modules.
+
+\textbf{Keywords:} smart agriculture, Django, React, REST API, SCRUM, CRISP-DM, Random Forest, CNN, TensorFlow, Scikit-learn.
+
+\chapter*{Liste des abréviations}
+\addcontentsline{toc}{chapter}{Liste des abréviations}
+\begin{longtable}{p{3cm}p{11cm}}
+API & Application Programming Interface \\
+CNN & Convolutional Neural Network \\
+CRUD & Create, Read, Update, Delete \\
+CRISP-DM & Cross Industry Standard Process for Data Mining \\
+DRF & Django REST Framework \\
+IA & Intelligence Artificielle \\
+JWT & JSON Web Token \\
+ML & Machine Learning \\
+MCD & Modèle Conceptuel de Données \\
+MLD & Modèle Logique de Données \\
+NPK & Azote, Phosphore, Potassium \\
+REST & Representational State Transfer \\
+UML & Unified Modeling Language \\
+\end{longtable}
+
+\tableofcontents
+\listoffigures
+\listoftables
+\clearpage
+\pagenumbering{arabic}
+
+\input{chapitre1}
+\input{chapitre2}
+\input{chapitre3}
+\input{conclusion}
+\input{annexes}
+
+\printbibliography[title={Bibliographie et webographie}]
+
+\end{document}

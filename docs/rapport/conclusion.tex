@@ -1,0 +1,36 @@
+\chapter{Conclusion générale}
+
+Le projet Smart Firma constitue une plateforme web intelligente orientée agriculture tunisienne. L'analyse du code source montre une architecture claire, structurée autour d'un frontend React/TypeScript et d'un backend Django REST Framework. Les fonctionnalités principales couvrent l'authentification, les tableaux de bord, la météo agricole, les actualités, la messagerie, le chatbot, la recommandation de cultures et le diagnostic de maladies végétales.
+
+Sur le plan technique, la solution exploite des services externes et des modèles d'intelligence artificielle. Le module de recommandation de cultures repose sur un Random Forest entraîné avec des données agro-climatiques. Le modèle tunisien obtient une accuracy holdout de 95,61 \%, ce qui constitue un résultat encourageant pour un prototype. Le module de diagnostic utilise un CNN Keras capable de classifier 38 classes de plantes et maladies à partir d'images redimensionnées en 224x224.
+
+\section*{Résultats obtenus}
+\addcontentsline{toc}{section}{Résultats obtenus}
+\begin{itemize}[noitemsep]
+  \item architecture client-serveur fonctionnelle ;
+  \item APIs REST modulaires ;
+  \item authentification par token ;
+  \item intégration météo et actualités ;
+  \item recommandation agricole adaptée aux zones tunisiennes ;
+  \item diagnostic image par Deep Learning ;
+  \item chatbot spécialisé agriculture tunisienne ;
+  \item documentation académique et technique générée.
+\end{itemize}
+
+\section*{Limites}
+\addcontentsline{toc}{section}{Limites}
+Les principales limites sont l'absence de Docker/CI-CD, l'utilisation de SQLite pour le développement, le manque de tests automatisés complets, l'absence d'un rapport d'entraînement détaillé pour le CNN et le caractère synthétique du dataset tunisien. De plus, le projet utilise TokenAuthentication mais ne contient ni JWT ni OAuth.
+
+\section*{Perspectives}
+\addcontentsline{toc}{section}{Perspectives}
+Les perspectives d'amélioration sont :
+\begin{itemize}[noitemsep]
+  \item migration vers PostgreSQL ;
+  \item ajout de Docker et d'une pipeline CI/CD ;
+  \item enrichissement du dataset tunisien avec des données terrain ;
+  \item ajout de rapports ML complets : confusion matrix, precision, recall, F1-score ;
+  \item amélioration du CNN par transfert learning ;
+  \item ajout de capteurs IoT et données parcellaire ;
+  \item gestion avancée des rôles et permissions ;
+  \item déploiement cloud sécurisé avec HTTPS et monitoring.
+\end{itemize}

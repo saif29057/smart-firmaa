@@ -1,0 +1,251 @@
+\chapter{Réalisation}
+
+\section{Environnement technique}
+\begin{table}[H]
+\centering
+\caption{Technologies utilisées}
+\begin{tabular}{p{4cm}p{9cm}}
+\toprule
+\textbf{Couche} & \textbf{Technologies} \\
+\midrule
+Frontend & React 19, TypeScript, React Router DOM, Axios, Lucide React, CSS. \\
+Backend & Python, Django 4.2.7, Django REST Framework, django-cors-headers. \\
+Base de données & SQLite en développement. \\
+Machine Learning & Scikit-learn, RandomForestClassifier, Joblib, Pandas, NumPy. \\
+Deep Learning & TensorFlow 2.17, Keras, Pillow. \\
+Services externes & Open-Meteo, OpenWeatherMap, NewsAPI, OpenAI API. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Sprint 1 : socle applicatif et authentification}
+\subsection{Objectifs}
+Le premier sprint vise à mettre en place la structure globale du projet, l'authentification et les premières interfaces.
+
+\subsection{Backlog du sprint}
+\begin{itemize}[noitemsep]
+  \item initialiser le backend Django ;
+  \item créer le frontend React ;
+  \item mettre en place les routes principales ;
+  \item créer le modèle utilisateur personnalisé ;
+  \item développer inscription, connexion, profil et déconnexion ;
+  \item créer les dashboards utilisateur et administrateur.
+\end{itemize}
+
+\subsection{Réalisation}
+Le backend contient l'application \texttt{authentication}. Le modèle \texttt{User} étend \texttt{AbstractUser} et ajoute les attributs \texttt{role}, \texttt{phone}, \texttt{avatar}, \texttt{created\_at} et \texttt{updated\_at}. Les serializers vérifient l'unicité de l'email et du nom d'utilisateur, ainsi que la concordance des mots de passe.
+
+Côté frontend, le contexte \texttt{AuthContext} centralise l'état d'authentification. Le service \texttt{api.ts} ajoute automatiquement le header \texttt{Authorization: Token <token>} à chaque requête. En cas d'erreur 401, le token est supprimé et l'utilisateur est redirigé vers la page de connexion.
+
+\subsection{Interfaces développées}
+\begin{longtable}{p{3cm}p{11cm}}
+\caption{Interfaces du sprint 1}\\
+\toprule
+\textbf{Page} & \textbf{Rôle et fonctionnement} \\
+\midrule
+Accueil & Présente Smart Firma, les services agricoles et les accès connexion/inscription ou dashboard selon l'état de session. \\
+Login & Formulaire username/password. Après succès, redirection vers dashboard utilisateur ou admin. \\
+Register & Formulaire d'inscription avec prénom, nom, username, email, téléphone optionnel et confirmation du mot de passe. \\
+Dashboard & Affiche données utilisateur, zones agro-écologiques, statistiques agricoles et raccourcis vers les services. \\
+DashboardAdmin & Affiche nombre d'utilisateurs, messages non lus et cartes d'administration. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Captures d'écran des interfaces du sprint}
+Les captures d'écran suivantes documentent les principales interfaces réalisées pendant le sprint 1. Les fichiers doivent être placés dans le dossier \texttt{docs/rapport/figures/}. Si une image n'est pas encore disponible, le rapport affiche automatiquement un cadre réservé à la capture afin de conserver la cohérence de la mise en page.
+
+\screenshotfigure{01_accueil.png}{Interface d'accueil de la plateforme Smart Firma}{fig:accueil}
+
+\screenshotfigure{02_login.png}{Interface de connexion utilisateur}{fig:login}
+
+\screenshotfigure{03_register.png}{Interface d'inscription utilisateur}{fig:register}
+
+\screenshotfigure{04_dashboard_utilisateur.png}{Tableau de bord utilisateur}{fig:dashboard-user}
+
+\screenshotfigure{05_dashboard_admin.png}{Tableau de bord administrateur}{fig:dashboard-admin}
+
+\subsection{APIs implémentées}
+\begin{longtable}{p{4.5cm}p{2cm}p{7cm}}
+\caption{APIs du sprint 1}\\
+\toprule
+\textbf{Endpoint} & \textbf{Méthode} & \textbf{Description} \\
+\midrule
+\texttt{/api/auth/register/} & POST & Inscription et création de token. \\
+\texttt{/api/auth/login/} & POST & Authentification et retour du token. \\
+\texttt{/api/auth/logout/} & POST & Suppression du token utilisateur. \\
+\texttt{/api/auth/profile/} & GET & Consultation du profil connecté. \\
+\texttt{/api/auth/profile/update/} & PUT & Mise à jour partielle du profil. \\
+\texttt{/api/auth/users/} & GET & Liste des utilisateurs, réservée aux administrateurs. \\
+\bottomrule
+\end{longtable}
+
+\section{Sprint 2 : services agricoles contextuels}
+\subsection{Objectifs}
+Ce sprint ajoute les services météo, actualités et recommandation agricole initiale.
+
+\subsection{Réalisation météo}
+Le module \texttt{weather} interroge Open-Meteo en deux étapes : géocodage de la ville puis récupération des données météo. Il fournit la météo actuelle et une prévision jusqu'à cinq jours. Le backend prévoit un fallback vers OpenWeatherMap si une clé est configurée, puis des données simulées en dernier recours.
+
+\subsection{Réalisation actualités}
+Le module \texttt{news} utilise NewsAPI. Il retourne les articles avec titre, description, contenu, auteur, source, URL, image et date de publication.
+
+\subsection{Réalisation recommandation}
+Le module \texttt{crops} charge \texttt{crop\_model\_tunisia.pkl}. Il récupère la localisation, les données météo Open-Meteo et les données sol locales à partir d'un dictionnaire couvrant plusieurs villes tunisiennes. Il construit le vecteur \([N,P,K,temperature,humidity,ph,rainfall]\) puis appelle \texttt{predict} et \texttt{predict\_proba}.
+
+\subsection{Interfaces développées}
+\begin{longtable}{p{3cm}p{11cm}}
+\caption{Interfaces du sprint 2}\\
+\toprule
+\textbf{Page} & \textbf{Description} \\
+\midrule
+Weather & Recherche par ville, affichage météo actuelle, prévisions 5 jours, zone agro-écologique et alertes agricoles. \\
+RecommendationPage & Page dédiée au module Smart-Farm Tunisia et intégration du composant \texttt{RecommendationForm}. \\
+RecommendationForm & Formulaire de localisation, mode manuel NPK/pH/température/humidité, affichage culture recommandée, alternatives, météo, sol et conseils. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Captures d'écran des interfaces du sprint}
+\screenshotfigure{06_meteo.png}{Interface de consultation météo agricole}{fig:meteo}
+
+\screenshotfigure{07_recommandation_formulaire.png}{Formulaire de recommandation agricole Smart-Farm Tunisia}{fig:recommandation-form}
+
+\screenshotfigure{08_recommandation_resultat.png}{Résultat de recommandation de culture avec alternatives et conseils}{fig:recommandation-resultat}
+
+\section{Sprint 3 : intelligence artificielle et diagnostic}
+\subsection{Objectifs}
+Ce sprint intègre les modèles Machine Learning et Deep Learning.
+
+\subsection{Module Random Forest}
+Le dataset tunisien contient 1710 observations et 11 cultures. Le modèle Random Forest tunisien est entraîné avec 200 arbres, profondeur maximale 15 et \texttt{min\_samples\_split=5}. Les résultats mesurés indiquent une validation croisée moyenne de 94,44 \% et une accuracy holdout de 95,61 \%.
+
+\subsection{Module CNN}
+Le modèle \texttt{plant\_disease\_cnn.h5} est un réseau Keras séquentiel pour 38 classes. Le backend charge le modèle paresseusement afin d'éviter un coût important à chaque requête. Le fichier image est validé, limité à 10 MB, converti en RGB, redimensionné à 224x224 et normalisé.
+
+\subsection{Interface Analysis}
+La page \texttt{Analysis.tsx} permet de sélectionner une image, visualiser l'aperçu, lancer l'analyse, afficher la confiance, le top diagnostic, les alternatives, les recommandations de traitement/prévention, le temps d'inférence et l'historique local.
+
+\subsection{Captures d'écran des interfaces du sprint}
+\screenshotfigure{09_analyse_upload.png}{Interface de téléversement d'une image de plante}{fig:analyse-upload}
+
+\screenshotfigure{10_analyse_resultat.png}{Résultat du diagnostic de maladie avec confiance et recommandations}{fig:analyse-resultat}
+
+\section{Partie Machine Learning et IA}
+\subsection{Introduction}
+La solution utilise le Machine Learning supervisé pour la recommandation de cultures et le Deep Learning pour la classification d'images de maladies végétales. Ces deux modules répondent à des besoins différents : décision agro-climatique et diagnostic visuel.
+
+\subsection{Méthodologie CRISP-DM}
+\begin{table}[H]
+\centering
+\caption{Application de CRISP-DM au projet}
+\begin{tabular}{p{3.2cm}p{10cm}}
+\toprule
+\textbf{Phase} & \textbf{Application} \\
+\midrule
+Business understanding & Aider les agriculteurs tunisiens à choisir une culture et diagnostiquer des maladies. \\
+Data understanding & Analyse des datasets CSV, classes agricoles, variables NPK, météo, pH et images de feuilles. \\
+Data preparation & Séparation X/y pour tabulaire, génération dataset Tunisie, redimensionnement et normalisation des images. \\
+Modeling & Random Forest pour cultures, CNN Keras pour maladies. \\
+Evaluation & Cross-validation, holdout accuracy, confiance de prédiction, top-3 CNN. \\
+Deployment & Endpoints REST \texttt{/crops/predict\_crop/} et \texttt{/api/analysis/upload/}. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Datasets}
+Le dataset général \texttt{Crop\_recommendation.csv} contient 2200 lignes, 22 classes équilibrées et 7 variables numériques. Le dataset \texttt{crop\_recommendation\_tunisia.csv} contient 1710 lignes et 11 cultures tunisiennes. Le dataset image n'est pas fourni sous forme de dossier d'entraînement dans le workspace ; seules des images médias d'analyses et le modèle CNN entraîné sont présents. Le code indique que les classes correspondent au dataset public \texttt{vipoooool/new-plant-diseases-dataset}.
+
+\subsection{Nettoyage, valeurs manquantes et outliers}
+Le code d'entraînement ne contient pas de traitement explicite des valeurs manquantes ou des outliers. Les données tabulaires sont utilisées directement après lecture CSV. Pour un pipeline de production, il est recommandé d'ajouter :
+\begin{itemize}[noitemsep]
+  \item contrôle des valeurs nulles ;
+  \item validation des bornes physiques N, P, K, pH, température, humidité et pluie ;
+  \item détection des valeurs extrêmes ;
+  \item journalisation des données rejetées.
+\end{itemize}
+
+\subsection{Prétraitement et normalisation}
+Le Random Forest ne nécessite pas de normalisation stricte. Le CNN applique une normalisation pixel par division par 255.0. Les images sont converties en tenseurs \texttt{float32}.
+
+\subsection{Analyse exploratoire}
+Les statistiques extraites du dataset tunisien montrent des pH principalement alcalins, une pluviométrie moyenne de 335,48 mm et une température moyenne de 22,25 °C. Les cultures sont volontairement distribuées selon les régions Nord, Centre et Sud.
+
+\subsection{Modélisation et hyperparamètres}
+\begin{longtable}{p{4cm}p{5cm}p{5cm}}
+\caption{Modèles IA utilisés}\\
+\toprule
+\textbf{Modèle} & \textbf{Hyperparamètres} & \textbf{Usage} \\
+\midrule
+Random Forest général & 100 arbres, \texttt{random\_state=42} & Recommandation générale de cultures. \\
+Random Forest Tunisie & 200 arbres, \texttt{max\_depth=15}, \texttt{min\_samples\_split=5} & Recommandation adaptée à la Tunisie. \\
+CNN Keras & Conv2D 32/64/128, Dense 128, Dropout 0.5, Softmax 38 & Classification d'images de maladies. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Evaluation}
+\begin{table}[H]
+\centering
+\caption{Résultats d'évaluation disponibles}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Modèle} & \textbf{CV moyenne} & \textbf{Ecart-type} & \textbf{Accuracy holdout} \\
+\midrule
+Random Forest général & 0.9945 & 0.0034 & 0.9955 \\
+Random Forest Tunisie & 0.9444 & 0.0256 & 0.9561 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Les métriques precision, recall et F1-score ne sont pas persistées dans le projet, mais elles sont recommandées pour compléter l'évaluation. Pour le CNN, le code retourne une confiance et un top-3 mais ne contient pas de rapport de test indépendant.
+
+\subsection{Déploiement IA}
+Le déploiement est effectué directement dans le backend Django. Les modèles sont stockés dans le dossier \texttt{backend}. Le modèle Random Forest est chargé au chargement du module \texttt{crops.views}. Le CNN est chargé uniquement lors de la première demande d'analyse.
+
+\section{Sprint 4 : chatbot, messagerie et consolidation}
+\subsection{Objectifs}
+Le quatrième sprint consolide l'expérience utilisateur avec communication et assistance intelligente.
+
+\subsection{Messagerie}
+Le module \texttt{messaging} permet de consulter la boîte de réception, les messages envoyés, le détail d'un message, l'envoi d'un message, la suppression et le comptage des messages non lus. L'accès au détail vérifie que l'utilisateur est expéditeur ou destinataire.
+
+\subsection{Chatbot}
+Le module \texttt{chatbot} utilise un prompt système orienté agriculture tunisienne. Les messages sont enregistrés dans \texttt{ChatMessage}. En cas d'erreur côté frontend, des réponses de secours sont prévues dans la page \texttt{Chatbot.tsx}.
+
+\subsection{Captures d'écran des interfaces du sprint}
+\screenshotfigure{11_chatbot.png}{Interface du chatbot agricole spécialisé}{fig:chatbot}
+
+\screenshotfigure{12_messagerie.png}{Interface ou logique de messagerie interne}{fig:messagerie}
+
+\section{Sécurité}
+\subsection{Authentification et autorisation}
+Le projet utilise \texttt{TokenAuthentication} et \texttt{SessionAuthentication}. Il n'utilise pas JWT ni OAuth dans le code source observé. Les permissions DRF globales imposent \texttt{IsAuthenticated}, avec exceptions explicites pour l'inscription et la connexion.
+
+\subsection{Validation}
+Les validations principales sont :
+\begin{itemize}[noitemsep]
+  \item unicité email et username ;
+  \item longueur minimale du mot de passe ;
+  \item confirmation du mot de passe ;
+  \item type MIME image ;
+  \item taille image maximale de 10 MB ;
+  \item contrôle d'accès aux messages et analyses.
+\end{itemize}
+
+\subsection{Middleware et CORS}
+Le middleware \texttt{corsheaders.middleware.CorsMiddleware} est activé. Les origines CORS sont configurables via variable d'environnement.
+
+\subsection{Gestion des erreurs}
+Les endpoints retournent des codes HTTP adaptés : 400 pour données invalides, 403 pour accès interdit, 503 pour indisponibilité du modèle ou de la météo, 500 pour erreurs internes.
+
+\section{DevOps}
+Aucun fichier Docker, pipeline CI/CD, configuration Kubernetes ou monitoring dédié n'a été détecté dans le workspace. Le déploiement actuel est donc local, avec \texttt{python manage.py runserver} pour Django et \texttt{npm start} pour React. Pour une mise en production, il est recommandé d'ajouter Docker, PostgreSQL, Nginx, HTTPS, logs applicatifs et une chaîne CI/CD.
+
+\section{Tests et résultats}
+Des fichiers \texttt{tests.py} existent dans les applications Django, mais ils ne contiennent pas de stratégie de tests détaillée dans le code inspecté. Les tests recommandés sont :
+\begin{itemize}[noitemsep]
+  \item tests unitaires serializers ;
+  \item tests API authentification ;
+  \item tests de permissions messages et analyses ;
+  \item tests de validation image ;
+  \item tests d'intégration frontend/backend ;
+  \item tests ML avec matrice de confusion et rapports de classification.
+\end{itemize}

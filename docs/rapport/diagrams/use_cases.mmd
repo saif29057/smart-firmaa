@@ -1,0 +1,12 @@
+flowchart LR
+    Visiteur((Visiteur))
+    Utilisateur((Utilisateur))
+    Admin((Administrateur))
+    Visiteur --> Inscription[S'inscrire]
+    Visiteur --> Connexion[Se connecter]
+    Utilisateur --> Meteo[Consulter meteo]
+    Utilisateur --> Reco[Recommander culture]
+    Utilisateur --> Analyse[Analyser image plante]
+    Utilisateur --> Chatbot[Utiliser chatbot]
+    Utilisateur --> Messages[Gerer messages]
+    Admin --> AdminDash[Consulter dashboard admin]

@@ -1,0 +1,377 @@
+\chapter{Analyse et conception}
+
+\section{Capture des besoins}
+\subsection{Besoins fonctionnels}
+\begin{longtable}{p{1.5cm}p{10cm}p{2cm}}
+\caption{Besoins fonctionnels identifiés}\\
+\toprule
+\textbf{ID} & \textbf{Besoin} & \textbf{Module} \\
+\midrule
+BF1 & Créer un compte utilisateur avec nom, prénom, email, téléphone et mot de passe. & Auth \\
+BF2 & Se connecter et conserver la session avec un token. & Auth \\
+BF3 & Consulter et mettre à jour le profil. & Auth \\
+BF4 & Consulter un tableau de bord utilisateur. & Frontend \\
+BF5 & Consulter un tableau de bord administrateur avec nombre d'utilisateurs. & Admin \\
+BF6 & Obtenir la météo actuelle et les prévisions. & Weather \\
+BF7 & Recommander une culture selon localisation et données agro-climatiques. & Crops ML \\
+BF8 & Personnaliser N, P, K, pH, température et humidité. & Crops ML \\
+BF9 & Téléverser une image de plante pour diagnostic. & Analysis DL \\
+BF10 & Obtenir top-3 prédictions, confiance et recommandations. & Analysis DL \\
+BF11 & Echanger des messages internes. & Messaging \\
+BF12 & Discuter avec un chatbot agricole. & Chatbot \\
+BF13 & Consulter les actualités. & News \\
+\bottomrule
+\end{longtable}
+
+\subsection{Besoins non fonctionnels}
+\begin{itemize}[noitemsep]
+  \item Sécurité : authentification par token DRF, permissions par endpoint, validation des entrées.
+  \item Performance : chargement paresseux du CNN, cache LRU sur le géocodage des villes.
+  \item Maintenabilité : applications Django séparées et services frontend isolés.
+  \item Portabilité : rapport compatible Overleaf, application exécutable localement.
+  \item Traçabilité : sauvegarde des analyses et conversations.
+  \item Ergonomie : interfaces spécialisées par usage métier.
+\end{itemize}
+
+\subsection{Contraintes techniques}
+Les contraintes détectées sont :
+\begin{itemize}[noitemsep]
+  \item backend Python/Django 4.2.7 ;
+  \item frontend React 19 avec TypeScript ;
+  \item base SQLite en environnement de développement ;
+  \item dépendance à des APIs externes : Open-Meteo, NewsAPI, OpenAI ;
+  \item modèle CNN volumineux \texttt{plant\_disease\_cnn.h5} ;
+  \item modèles Random Forest sauvegardés en \texttt{.pkl}.
+\end{itemize}
+
+\section{Identification des acteurs}
+\begin{table}[H]
+\centering
+\caption{Acteurs du système}
+\begin{tabular}{p{3cm}p{10cm}}
+\toprule
+\textbf{Acteur} & \textbf{Description} \\
+\midrule
+Visiteur & Accède à l'accueil, à la connexion et à l'inscription. \\
+Utilisateur & Accède aux services authentifiés : météo, recommandation, chatbot, analyse, messagerie. \\
+Administrateur & Consulte le tableau de bord administrateur et la liste des utilisateurs via endpoint protégé. \\
+API externe & Fournit météo, actualités ou réponses conversationnelles. \\
+Modèle ML/DL & Produit des prédictions de culture ou de maladie. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Cas d'utilisation}
+\subsection{Diagramme global}
+\begin{figure}[H]
+\centering
+\caption{Diagramme global des cas d'utilisation}
+\begin{lstlisting}[language=mermaid]
+flowchart LR
+    Visiteur((Visiteur))
+    Utilisateur((Utilisateur))
+    Admin((Administrateur))
+
+    UC1[S'inscrire]
+    UC2[Se connecter]
+    UC3[Consulter meteo]
+    UC4[Recommander culture]
+    UC5[Analyser image plante]
+    UC6[Utiliser chatbot]
+    UC7[Gerer messages]
+    UC8[Consulter dashboard admin]
+
+    Visiteur --> UC1
+    Visiteur --> UC2
+    Utilisateur --> UC3
+    Utilisateur --> UC4
+    Utilisateur --> UC5
+    Utilisateur --> UC6
+    Utilisateur --> UC7
+    Admin --> UC8
+    Admin --> UC7
+\end{lstlisting}
+\end{figure}
+
+\subsection{Descriptions textuelles}
+\begin{longtable}{p{3cm}p{11cm}}
+\caption{Descriptions des cas d'utilisation}\\
+\toprule
+\textbf{Cas} & \textbf{Description} \\
+\midrule
+Inscription & L'utilisateur renseigne ses informations. Le backend vérifie l'unicité de l'email et du nom d'utilisateur, compare les mots de passe et crée un compte. \\
+Connexion & L'utilisateur fournit son nom d'utilisateur et son mot de passe. L'API authentifie et retourne un token stocké côté client. \\
+Météo & L'utilisateur choisit une ville tunisienne. Le frontend appelle \texttt{/api/weather/current/} et \texttt{/api/weather/forecast/}. \\
+Recommandation & L'utilisateur saisit une localisation et optionnellement des valeurs manuelles. Le backend récupère météo et sol, puis interroge Random Forest. \\
+Analyse image & L'utilisateur envoie une image. L'API valide le fichier, prétraite l'image, appelle le CNN et sauvegarde le diagnostic. \\
+Chatbot & L'utilisateur pose une question. Le backend envoie le contexte agricole et la question à l'API OpenAI puis sauvegarde la conversation. \\
+Messagerie & L'utilisateur consulte ses messages reçus/envoyés, envoie un message, lit le détail ou supprime un message. \\
+\bottomrule
+\end{longtable}
+
+\section{Modélisation UML}
+\subsection{Diagramme de classes}
+\begin{figure}[H]
+\centering
+\caption{Diagramme de classes principal}
+\begin{lstlisting}[language=mermaid]
+classDiagram
+    class User {
+      int id
+      string username
+      string email
+      string role
+      string phone
+      image avatar
+      datetime created_at
+    }
+    class Message {
+      int id
+      string subject
+      text content
+      boolean is_read
+      datetime created_at
+      datetime updated_at
+    }
+    class AnalysisLog {
+      int id
+      image image
+      json result
+      float confidence
+      float processing_time
+      datetime created_at
+    }
+    class ChatMessage {
+      int id
+      text message
+      text response
+      datetime created_at
+    }
+    User "1" --> "*" Message : sender
+    User "1" --> "*" Message : recipient
+    User "1" --> "*" AnalysisLog
+    User "1" --> "*" ChatMessage
+\end{lstlisting}
+\end{figure}
+
+\subsection{Diagramme de séquence : authentification}
+\begin{figure}[H]
+\centering
+\caption{Séquence de connexion}
+\begin{lstlisting}[language=mermaid]
+sequenceDiagram
+    actor U as Utilisateur
+    participant F as Frontend React
+    participant A as API Auth Django
+    participant DB as SQLite
+    U->>F: Saisir username/password
+    F->>A: POST /api/auth/login/
+    A->>DB: Verifier utilisateur
+    DB-->>A: Utilisateur valide
+    A-->>F: user + token
+    F->>F: Stocker token localStorage
+    F-->>U: Redirection dashboard
+\end{lstlisting}
+\end{figure}
+
+\subsection{Diagramme de séquence : diagnostic image}
+\begin{figure}[H]
+\centering
+\caption{Séquence d'analyse de maladie}
+\begin{lstlisting}[language=mermaid]
+sequenceDiagram
+    actor U as Utilisateur
+    participant F as Page Analysis
+    participant API as API Analysis
+    participant CNN as plant_disease_cnn.h5
+    participant DB as SQLite
+    U->>F: Selectionner image
+    F->>API: POST /api/analysis/upload/
+    API->>API: Valider type et taille
+    API->>DB: Creer AnalysisLog
+    API->>API: Resize 224x224, RGB, normalisation
+    API->>CNN: Prediction
+    CNN-->>API: Probabilites 38 classes
+    API->>DB: Sauvegarder resultat JSON
+    API-->>F: Top prediction + recommandations
+    F-->>U: Afficher diagnostic
+\end{lstlisting}
+\end{figure}
+
+\subsection{Diagramme d'activité : recommandation agricole}
+\begin{figure}[H]
+\centering
+\caption{Activité du module de recommandation}
+\begin{lstlisting}[language=mermaid]
+flowchart TD
+    A[Debut] --> B[Saisie localisation]
+    B --> C[Geocodage Open-Meteo]
+    C --> D{Meteo disponible ?}
+    D -- Non --> E[Retour erreur 503]
+    D -- Oui --> F[Charger donnees sol]
+    F --> G{Mode manuel ?}
+    G -- Oui --> H[Surcharger NPK, pH, temperature, humidite]
+    G -- Non --> I[Utiliser donnees automatiques]
+    H --> J[Construire DataFrame]
+    I --> J
+    J --> K[Predire avec RandomForest]
+    K --> L[Calculer confiance et alternatives]
+    L --> M[Generer conseils]
+    M --> N[Retour JSON]
+\end{lstlisting}
+\end{figure}
+
+\subsection{Diagramme de composants}
+\begin{figure}[H]
+\centering
+\caption{Diagramme de composants}
+\begin{lstlisting}[language=mermaid]
+flowchart LR
+    subgraph Frontend
+        Pages[Pages React]
+        Services[Services Axios]
+        Context[AuthContext]
+    end
+
+    subgraph Backend
+        Auth[authentication]
+        Weather[weather]
+        News[news]
+        Analysis[analysis]
+        Crops[crops]
+        Chatbot[chatbot]
+        Messaging[messaging]
+    end
+
+    subgraph Data
+        SQLite[(db.sqlite3)]
+        Media[(media files)]
+        Models[(PKL/H5 models)]
+    end
+
+    Pages --> Services
+    Context --> Services
+    Services --> Auth
+    Services --> Weather
+    Services --> News
+    Services --> Analysis
+    Services --> Chatbot
+    Services --> Messaging
+    Pages --> Crops
+    Auth --> SQLite
+    Messaging --> SQLite
+    Analysis --> SQLite
+    Chatbot --> SQLite
+    Analysis --> Media
+    Analysis --> Models
+    Crops --> Models
+\end{lstlisting}
+\end{figure}
+
+\section{Architecture logicielle}
+L'application utilise une architecture client-serveur de type trois tiers. Le frontend React constitue la couche présentation. Le backend Django REST constitue la couche métier et expose les APIs. La base SQLite, les fichiers médias et les fichiers modèles constituent la couche données.
+
+\subsection{Architecture frontend}
+Le frontend est organisé autour des dossiers :
+\begin{itemize}[noitemsep]
+  \item \texttt{pages} : pages routées par React Router ;
+  \item \texttt{components} : composants réutilisables dont \texttt{Navbar}, \texttt{Footer} et \texttt{RecommendationForm} ;
+  \item \texttt{services} : clients API Axios ;
+  \item \texttt{contexts} : contexte d'authentification ;
+  \item \texttt{styles} : feuilles CSS.
+\end{itemize}
+
+\subsection{Architecture backend}
+Le backend est organisé en applications Django indépendantes :
+\texttt{authentication}, \texttt{messaging}, \texttt{weather}, \texttt{news}, \texttt{analysis}, \texttt{chatbot}, \texttt{crops}. Cette séparation améliore la maintenabilité et limite le couplage.
+
+\section{Base de données}
+\subsection{MCD}
+\begin{figure}[H]
+\centering
+\caption{MCD simplifié}
+\begin{lstlisting}[language=mermaid]
+erDiagram
+    USER ||--o{ MESSAGE : sends
+    USER ||--o{ MESSAGE : receives
+    USER ||--o{ ANALYSIS_LOG : owns
+    USER ||--o{ CHAT_MESSAGE : owns
+
+    USER {
+      int id
+      string username
+      string email
+      string role
+      string phone
+      string avatar
+    }
+    MESSAGE {
+      int id
+      int sender_id
+      int recipient_id
+      string subject
+      text content
+      boolean is_read
+    }
+    ANALYSIS_LOG {
+      int id
+      int user_id
+      string image
+      json result
+      float confidence
+      float processing_time
+    }
+    CHAT_MESSAGE {
+      int id
+      int user_id
+      text message
+      text response
+    }
+\end{lstlisting}
+\end{figure}
+
+\subsection{Explication des entités}
+\begin{itemize}[noitemsep]
+  \item \texttt{User} : utilisateur personnalisé avec rôle, téléphone et avatar.
+  \item \texttt{Message} : message interne entre deux utilisateurs.
+  \item \texttt{AnalysisLog} : historique d'analyse image, résultat JSON et métriques d'inférence.
+  \item \texttt{ChatMessage} : historique des échanges avec le chatbot.
+\end{itemize}
+
+\section{Gestion de projet SCRUM}
+\subsection{Product backlog}
+\begin{longtable}{p{1.2cm}p{8.5cm}p{2cm}p{2cm}}
+\caption{Product backlog}\\
+\toprule
+\textbf{ID} & \textbf{User story} & \textbf{Priorité} & \textbf{Sprint} \\
+\midrule
+US1 & En tant que visiteur, je veux créer un compte. & Haute & S1 \\
+US2 & En tant qu'utilisateur, je veux me connecter. & Haute & S1 \\
+US3 & En tant qu'utilisateur, je veux consulter mon tableau de bord. & Haute & S1 \\
+US4 & En tant qu'utilisateur, je veux consulter la météo agricole. & Haute & S2 \\
+US5 & En tant qu'utilisateur, je veux consulter les actualités. & Moyenne & S2 \\
+US6 & En tant qu'agriculteur, je veux obtenir une recommandation de culture. & Très haute & S2 \\
+US7 & En tant qu'agriculteur, je veux personnaliser les valeurs du sol. & Haute & S3 \\
+US8 & En tant qu'utilisateur, je veux diagnostiquer une maladie à partir d'une image. & Très haute & S3 \\
+US9 & En tant qu'utilisateur, je veux recevoir des conseils de traitement. & Très haute & S3 \\
+US10 & En tant qu'utilisateur, je veux discuter avec un chatbot. & Moyenne & S4 \\
+US11 & En tant qu'utilisateur, je veux envoyer et recevoir des messages. & Moyenne & S4 \\
+US12 & En tant qu'administrateur, je veux consulter un tableau de bord. & Moyenne & S4 \\
+\bottomrule
+\end{longtable}
+
+\subsection{Planification des sprints}
+\begin{table}[H]
+\centering
+\caption{Planification des sprints}
+\begin{tabular}{p{2cm}p{5cm}p{7cm}}
+\toprule
+\textbf{Sprint} & \textbf{Objectif} & \textbf{Livrables} \\
+\midrule
+S1 & Socle applicatif & Structure React/Django, routage, authentification, dashboards. \\
+S2 & Services contextuels & Météo, actualités, recommandation initiale de cultures. \\
+S3 & Intelligence artificielle & Random Forest Tunisie, CNN maladies, upload image, recommandations. \\
+S4 & Communication et consolidation & Messagerie, chatbot, dashboard admin, documentation et tests. \\
+\bottomrule
+\end{tabular}
+\end{table}

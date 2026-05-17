@@ -1,0 +1,119 @@
+\chapter{Cadre général du projet}
+
+\section{Présentation de l'organisme d'accueil}
+Le projet Smart Firma s'inscrit dans un contexte de transformation numérique du secteur agricole. L'organisme d'accueil n'étant pas explicitement décrit dans le code source, le rapport considère Smart Firma comme une structure projet ou une plateforme applicative dédiée à l'agriculture intelligente. Les informations administratives exactes de l'entreprise ou de l'établissement d'accueil doivent être complétées par l'étudiant.
+
+\subsection{Présentation générale}
+Smart Firma vise à fournir un environnement numérique unifié permettant aux agriculteurs de consulter des informations utiles, d'obtenir des recommandations et d'exploiter l'intelligence artificielle pour améliorer la surveillance des cultures. La plateforme cible particulièrement le contexte tunisien, avec des cultures telles que l'olivier, le blé dur, les dattes, les agrumes, l'orge, les fèves, le pois chiche, l'amandier, le figuier de barbarie et le pêcher.
+
+\subsection{Activités et services}
+Les services détectés dans le code source sont :
+\begin{itemize}[noitemsep]
+  \item un service d'authentification et de gestion du profil utilisateur ;
+  \item un tableau de bord utilisateur et un tableau de bord administrateur ;
+  \item un service météo basé sur Open-Meteo et, en secours, OpenWeatherMap ;
+  \item un service d'actualités utilisant NewsAPI ;
+  \item un chatbot agricole basé sur l'API OpenAI ;
+  \item un module de messagerie interne ;
+  \item un module de recommandation de cultures tunisiennes ;
+  \item un module de diagnostic de maladies végétales par image.
+\end{itemize}
+
+\subsection{Organigramme fonctionnel}
+Le code ne contient pas d'organigramme officiel de l'organisme. L'organisation fonctionnelle du projet peut néanmoins être représentée ainsi :
+
+\begin{figure}[H]
+\centering
+\caption{Organigramme fonctionnel proposé pour Smart Firma}
+\begin{lstlisting}[language=mermaid]
+flowchart TD
+    Direction[Direction / Encadrement]
+    PO[Product Owner]
+    Dev[Equipe de developpement]
+    IA[Equipe IA / Data]
+    Users[Utilisateurs agricoles]
+
+    Direction --> PO
+    PO --> Dev
+    PO --> IA
+    Dev --> Frontend[Frontend React]
+    Dev --> Backend[Backend Django REST]
+    IA --> ML[Modeles ML et DL]
+    Users --> PO
+\end{lstlisting}
+\end{figure}
+
+\section{Contexte du projet}
+\subsection{Problématique}
+Les agriculteurs doivent prendre des décisions rapides concernant les cultures, l'irrigation, les risques météorologiques et les maladies végétales. Les informations nécessaires sont souvent dispersées entre différentes sources : bulletins météo, conseils agronomiques, observations terrain, analyses de sol et connaissances empiriques. Cette dispersion complique la prise de décision et peut entraîner des pertes de rendement ou un usage non optimal des ressources.
+
+\subsection{Objectifs}
+Les objectifs du projet sont :
+\begin{itemize}[noitemsep]
+  \item centraliser les services numériques agricoles dans une plateforme web ;
+  \item sécuriser l'accès via inscription, connexion et gestion de session par token ;
+  \item fournir des prévisions météorologiques exploitables pour l'agriculture ;
+  \item recommander des cultures selon les caractéristiques du sol, du climat et de la localisation ;
+  \item diagnostiquer les maladies végétales à partir d'images ;
+  \item conserver les historiques d'analyse et de conversation ;
+  \item proposer un chatbot spécialisé dans l'agriculture tunisienne ;
+  \item documenter la solution selon une démarche académique et professionnelle.
+\end{itemize}
+
+\subsection{Motivation}
+La motivation principale est d'appliquer les technologies web modernes et l'intelligence artificielle à un domaine à fort impact : l'agriculture. Dans le contexte tunisien, les ressources hydriques, la diversité des zones agro-écologiques et les risques phytosanitaires justifient l'utilisation d'outils numériques d'aide à la décision.
+
+\section{Analyse de l'existant}
+\subsection{Solutions concurrentes et comparaison}
+\begin{table}[H]
+\centering
+\caption{Comparaison avec des familles de solutions existantes}
+\begin{tabular}{p{3.5cm}p{4.2cm}p{4.2cm}p{2.4cm}}
+\toprule
+\textbf{Type de solution} & \textbf{Fonctions principales} & \textbf{Limites} & \textbf{Position de Smart Firma} \\
+\midrule
+Applications météo & Prévisions, température, vent, pluie & Peu de contextualisation agronomique & Ajoute alertes agricoles et zones tunisiennes \\
+Outils de diagnostic image & Détection de maladies végétales & Souvent isolés du reste du système agricole & Diagnostic intégré avec recommandations \\
+Chatbots généralistes & Réponses conversationnelles & Contexte agricole limité & Prompt spécialisé agriculture tunisienne \\
+Systèmes de recommandation & Conseils selon données tabulaires & Peu adaptés aux villes tunisiennes & Modèle localisé avec base sol et météo \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Critique de l'existant}
+Les solutions existantes sont souvent mono-fonctionnelles. Elles ne combinent pas toujours authentification, diagnostic, météo, recommandations, historiques et communication. Smart Firma répond à cette limite en intégrant plusieurs modules dans une architecture cohérente.
+
+\section{Solution proposée}
+La solution proposée est une application web client-serveur. Le client React consomme les APIs REST exposées par Django. Le backend orchestre les services métier, les APIs externes, les modèles Machine Learning et la base de données SQLite.
+
+\begin{figure}[H]
+\centering
+\caption{Fonctionnement général de la solution}
+\begin{lstlisting}[language=mermaid]
+flowchart LR
+    User[Agriculteur / Administrateur] --> UI[Interface React TypeScript]
+    UI --> API[API Django REST]
+    API --> DB[(SQLite)]
+    API --> Weather[Open-Meteo]
+    API --> News[NewsAPI]
+    API --> OpenAI[OpenAI API]
+    API --> RF[Random Forest crops]
+    API --> CNN[CNN maladies]
+\end{lstlisting}
+\end{figure}
+
+\section{Méthodologie de travail}
+\subsection{Méthodes agiles}
+Le projet est organisé selon une logique agile : les fonctionnalités sont découpées en modules livrables et testables. Chaque incrément apporte une valeur visible à l'utilisateur.
+
+\subsection{SCRUM}
+La démarche SCRUM est adaptée au projet avec les rôles suivants :
+\begin{itemize}[noitemsep]
+  \item Product Owner : priorisation des besoins et validation fonctionnelle ;
+  \item Scrum Master : organisation du travail et suivi de l'avancement ;
+  \item Equipe de développement : frontend, backend, intégration IA et tests ;
+  \item Utilisateurs finaux : agriculteurs, administrateurs et techniciens.
+\end{itemize}
+
+\subsection{Cycle de développement}
+Le cycle suit les étapes : analyse, conception, implémentation, test, correction et documentation. Les sprints sont détaillés dans le chapitre 3.

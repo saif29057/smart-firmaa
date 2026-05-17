@@ -1,0 +1,812 @@
+\documentclass[12pt,a4paper]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{enumitem}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,shapes.multipart,fit,calc}
+
+\geometry{left=2.8cm,right=2.4cm,top=2.5cm,bottom=2.5cm}
+\onehalfspacing
+\hypersetup{colorlinks=true,linkcolor=blue!55!black,urlcolor=blue!55!black,citecolor=blue!55!black}
+
+\definecolor{sfGreen}{RGB}{38,120,75}
+\definecolor{sfBrown}{RGB}{106,76,42}
+\definecolor{sfBlue}{RGB}{36,92,140}
+\definecolor{sfGray}{RGB}{245,247,250}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  backgroundcolor=\color{sfGray},
+  columns=fullflexible
+}
+
+\title{
+  \vspace{2cm}
+  \textbf{\Huge Rapport de Projet de Fin d'Etudes}\\[0.5cm]
+  \textbf{\Large Smart Firma : plateforme intelligente d'aide à la décision agricole}\\[1cm]
+  \large Analyse, conception, implémentation et intégration Machine Learning
+}
+\author{
+  Réalisé par : \textit{Nom de l'étudiant}\\
+  Encadré par : \textit{Nom de l'encadrant}
+}
+\date{Année universitaire 2025--2026}
+
+\begin{document}
+
+\maketitle
+\pagenumbering{roman}
+
+\chapter*{Remerciements}
+Je tiens à exprimer ma gratitude à toutes les personnes ayant contribué à la réalisation de ce projet. Mes remerciements vont à l'équipe pédagogique pour son accompagnement, à l'encadrant académique pour ses orientations méthodologiques, ainsi qu'aux utilisateurs ayant permis de mieux comprendre les besoins du domaine agricole tunisien.
+
+\chapter*{Résumé}
+Smart Firma est une plateforme web destinée à assister les agriculteurs dans la prise de décision. Elle regroupe l'authentification, un tableau de bord, un service météo, une messagerie, un chatbot agricole, un module de recommandation de cultures et un module d'analyse d'images de plantes. Le système repose sur une architecture client-serveur : un frontend React/TypeScript communique avec une API Django REST. Deux briques d'intelligence artificielle sont intégrées : un modèle Random Forest pour recommander des cultures adaptées au contexte tunisien et un réseau de neurones convolutif Keras pour détecter les maladies végétales à partir d'images.
+
+\textbf{Mots-clés :} agriculture intelligente, Django REST, React, Machine Learning, Random Forest, CNN, détection de maladies, recommandation de cultures, SCRUM.
+
+\tableofcontents
+\listoffigures
+\listoftables
+\clearpage
+\pagenumbering{arabic}
+
+\chapter{Introduction générale}
+
+\section{Contexte}
+L'agriculture tunisienne est confrontée à des contraintes climatiques, hydriques et phytosanitaires croissantes. La prise de décision agricole nécessite désormais l'exploitation de données météorologiques, de caractéristiques du sol, de connaissances agronomiques locales et d'outils d'intelligence artificielle. Dans ce cadre, Smart Firma propose une solution numérique centralisant plusieurs services utiles aux exploitants.
+
+\section{Problématique}
+Les agriculteurs disposent souvent d'informations dispersées : prévisions météorologiques, recommandations de cultures, symptômes des maladies végétales, conseils techniques et échanges avec des experts. Cette fragmentation ralentit la décision et peut conduire à des pertes de rendement. La problématique traitée est donc la suivante :
+
+\begin{quote}
+Comment concevoir une plateforme web intelligente capable d'assister un agriculteur tunisien dans le diagnostic de maladies, la recommandation de cultures et l'accès à des services agricoles numériques fiables ?
+\end{quote}
+
+\section{Objectifs du projet}
+Les objectifs principaux sont :
+\begin{itemize}[noitemsep]
+  \item développer une application web modulaire et sécurisée ;
+  \item intégrer une authentification avec gestion des rôles utilisateur et administrateur ;
+  \item fournir une analyse météo et des actualités ;
+  \item proposer une recommandation de cultures selon le sol, le climat et la localisation ;
+  \item détecter les maladies de plantes à partir d'images ;
+  \item conserver l'historique des analyses et faciliter la communication via messagerie ;
+  \item documenter l'architecture et la démarche projet selon une approche académique.
+\end{itemize}
+
+\section{Organisation du rapport}
+Le rapport présente d'abord l'étude de l'existant et la méthodologie SCRUM, puis l'analyse fonctionnelle, la conception UML, l'architecture technique, l'implémentation, la partie Machine Learning, le déploiement, les tests et la conclusion.
+
+\chapter{Etude de l'existant et méthodologie}
+
+\section{Etude de l'existant}
+Les outils agricoles numériques peuvent être classés en plusieurs familles : applications météo, outils de diagnostic phytosanitaire, plateformes de conseil, forums et systèmes de recommandation. La limite principale est leur spécialisation : une application météo ne fournit pas nécessairement des recommandations de culture, tandis qu'un outil de diagnostic ne prend pas en compte le contexte local tunisien.
+
+Smart Firma se distingue par l'intégration de plusieurs services dans une seule plateforme :
+\begin{itemize}[noitemsep]
+  \item analyse de maladies par image ;
+  \item recommandation de cultures adaptée à la Tunisie ;
+  \item météo et prévisions ;
+  \item chatbot spécialisé en agriculture tunisienne ;
+  \item messagerie et tableaux de bord.
+\end{itemize}
+
+\section{Méthodologie SCRUM}
+Le projet suit une approche agile inspirée de SCRUM. Les fonctionnalités sont regroupées en incréments livrables, chaque sprint ajoutant une capacité testable.
+
+\subsection{Rôles SCRUM}
+\begin{table}[H]
+\centering
+\caption{Rôles SCRUM du projet}
+\begin{tabular}{p{4cm}p{10cm}}
+\toprule
+\textbf{Rôle} & \textbf{Responsabilités} \\
+\midrule
+Product Owner & Priorisation des besoins agricoles : diagnostic, météo, recommandation, chatbot. \\
+Scrum Master & Suivi de la méthode, suppression des blocages, respect du périmètre. \\
+Equipe de développement & Conception, développement frontend/backend, intégration ML, tests. \\
+Utilisateurs finaux & Agriculteurs, techniciens agricoles, administrateurs de la plateforme. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Product backlog}
+\begin{longtable}{p{1cm}p{8.5cm}p{2.2cm}p{2.2cm}}
+\caption{Backlog produit}\\
+\toprule
+\textbf{ID} & \textbf{User story} & \textbf{Priorité} & \textbf{Sprint} \\
+\midrule
+US1 & En tant qu'utilisateur, je veux créer un compte et me connecter. & Haute & S1 \\
+US2 & En tant qu'utilisateur, je veux consulter un tableau de bord. & Haute & S1 \\
+US3 & En tant qu'agriculteur, je veux obtenir la météo d'une ville. & Haute & S2 \\
+US4 & En tant qu'agriculteur, je veux recommander une culture selon ma localisation. & Très haute & S2 \\
+US5 & En tant qu'agriculteur, je veux personnaliser les valeurs NPK et pH. & Haute & S3 \\
+US6 & En tant qu'utilisateur, je veux envoyer une image de plante pour diagnostic. & Très haute & S3 \\
+US7 & En tant qu'utilisateur, je veux recevoir des recommandations de traitement. & Très haute & S3 \\
+US8 & En tant qu'utilisateur, je veux consulter l'historique de mes analyses. & Moyenne & S4 \\
+US9 & En tant qu'utilisateur, je veux échanger des messages. & Moyenne & S4 \\
+US10 & En tant qu'utilisateur, je veux discuter avec un chatbot agricole. & Moyenne & S4 \\
+\bottomrule
+\end{longtable}
+
+\subsection{Planification des sprints}
+\begin{table}[H]
+\centering
+\caption{Planification SCRUM}
+\begin{tabular}{p{2cm}p{5.5cm}p{6cm}}
+\toprule
+\textbf{Sprint} & \textbf{Objectif} & \textbf{Livrables} \\
+\midrule
+Sprint 1 & Socle applicatif & Projet Django, projet React, authentification, routes principales. \\
+Sprint 2 & Services agricoles contextuels & Météo, actualités, interface dashboard, API de recommandation. \\
+Sprint 3 & Intelligence artificielle & Random Forest, CNN, upload image, résultats et conseils. \\
+Sprint 4 & Expérience utilisateur & Historique, messagerie, chatbot, consolidation et tests. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\chapter{Analyse fonctionnelle}
+
+\section{Acteurs}
+Les acteurs du système sont :
+\begin{itemize}[noitemsep]
+  \item \textbf{Visiteur} : consulte les pages publiques et peut s'inscrire ;
+  \item \textbf{Utilisateur authentifié} : accède aux services agricoles, aux analyses et à la messagerie ;
+  \item \textbf{Administrateur} : consulte la liste des utilisateurs et dispose des droits d'administration Django ;
+  \item \textbf{Services externes} : Open-Meteo, NewsAPI, OpenAI API ;
+  \item \textbf{Modèles ML} : modèle Random Forest et modèle CNN.
+\end{itemize}
+
+\section{Besoins fonctionnels}
+\begin{itemize}[noitemsep]
+  \item inscription, connexion, déconnexion et gestion du profil ;
+  \item consultation de la météo actuelle et des prévisions ;
+  \item consultation des actualités ;
+  \item recommandation automatique ou manuelle de cultures ;
+  \item upload d'image et analyse de maladie ;
+  \item génération de recommandations agronomiques ;
+  \item messagerie interne ;
+  \item chatbot agricole spécialisé ;
+  \item historique des analyses.
+\end{itemize}
+
+\section{Besoins non fonctionnels}
+\begin{itemize}[noitemsep]
+  \item \textbf{Sécurité} : authentification par token, permissions Django REST Framework ;
+  \item \textbf{Performance} : chargement paresseux du modèle CNN et cache LRU sur le géocodage ;
+  \item \textbf{Maintenabilité} : séparation frontend, backend, services et applications Django ;
+  \item \textbf{Interopérabilité} : API REST JSON ;
+  \item \textbf{Ergonomie} : interfaces React spécialisées pour météo, chatbot, analyse et recommandation ;
+  \item \textbf{Traçabilité} : journalisation des analyses dans la table \texttt{AnalysisLog}.
+\end{itemize}
+
+\chapter{Conception UML}
+
+\section{Diagramme de cas d'utilisation}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  actor/.style={draw,ellipse,minimum width=2.4cm,minimum height=0.8cm,fill=sfGray},
+  usecase/.style={draw,ellipse,minimum width=3.7cm,minimum height=0.85cm,fill=green!7},
+  line/.style={-Latex}
+]
+\node[actor] (visiteur) {Visiteur};
+\node[actor,below=2.7cm of visiteur] (user) {Utilisateur};
+\node[actor,below=2.7cm of user] (admin) {Administrateur};
+
+\node[usecase,right=4.5cm of visiteur] (register) {S'inscrire};
+\node[usecase,below=0.9cm of register] (login) {Se connecter};
+\node[usecase,below=0.9cm of login] (weather) {Consulter météo};
+\node[usecase,below=0.9cm of weather] (crop) {Recommander culture};
+\node[usecase,below=0.9cm of crop] (analysis) {Analyser image};
+\node[usecase,below=0.9cm of analysis] (chat) {Utiliser chatbot};
+\node[usecase,below=0.9cm of chat] (msg) {Gérer messages};
+\node[usecase,below=0.9cm of msg] (users) {Gérer utilisateurs};
+
+\draw[line] (visiteur) -- (register);
+\draw[line] (visiteur) -- (login);
+\draw[line] (user) -- (weather);
+\draw[line] (user) -- (crop);
+\draw[line] (user) -- (analysis);
+\draw[line] (user) -- (chat);
+\draw[line] (user) -- (msg);
+\draw[line] (admin) -- (users);
+\draw[line] (admin) -- (analysis);
+\end{tikzpicture}
+\caption{Diagramme de cas d'utilisation de Smart Firma}
+\end{figure}
+
+\section{Diagramme de classes}
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tikzpicture}[
+  class/.style={draw,rectangle split,rectangle split parts=3,minimum width=4.2cm,fill=sfGray,align=left},
+  assoc/.style={-Latex}
+]
+\node[class] (User) {
+  \textbf{User}
+  \nodepart{second}
+  username\\ email\\ role\\ phone\\ avatar
+  \nodepart{third}
+  authenticate()\\ updateProfile()
+};
+\node[class,right=1.5cm of User] (Message) {
+  \textbf{Message}
+  \nodepart{second}
+  sender\\ recipient\\ subject\\ content\\ is\_read\\ created\_at
+  \nodepart{third}
+  markAsRead()\\ delete()
+};
+\node[class,below=1.6cm of User] (AnalysisLog) {
+  \textbf{AnalysisLog}
+  \nodepart{second}
+  user\\ image\\ result\\ confidence\\ processing\_time\\ created\_at
+  \nodepart{third}
+  saveResult()\\ getHistory()
+};
+\node[class,right=1.5cm of AnalysisLog] (ChatMessage) {
+  \textbf{ChatMessage}
+  \nodepart{second}
+  user\\ message\\ response\\ created\_at
+  \nodepart{third}
+  storeConversation()
+};
+\node[class,below=1.6cm of AnalysisLog] (CropModel) {
+  \textbf{CropRecommendation}
+  \nodepart{second}
+  N, P, K\\ temperature\\ humidity\\ ph\\ rainfall
+  \nodepart{third}
+  predict()\\ predict\_proba()
+};
+\node[class,right=1.5cm of CropModel] (DiseaseModel) {
+  \textbf{DiseaseCNN}
+  \nodepart{second}
+  image 224x224x3\\ classes=38
+  \nodepart{third}
+  preprocess()\\ predictTop3()
+};
+\draw[assoc] (User) -- node[above]{1..*} (Message);
+\draw[assoc] (User) -- node[left]{1..*} (AnalysisLog);
+\draw[assoc] (User) -- node[right]{1..*} (ChatMessage);
+\draw[assoc] (AnalysisLog) -- (DiseaseModel);
+\end{tikzpicture}
+}
+\caption{Diagramme de classes conceptuel}
+\end{figure}
+
+\section{Diagramme de séquence : analyse d'image}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  lifeline/.style={draw,minimum width=2.6cm,minimum height=0.8cm,fill=sfGray},
+  msg/.style={-Latex,thick},
+  ret/.style={Latex-,dashed},
+  note/.style={draw,rounded corners,fill=green!7,align=center}
+]
+\node[lifeline] (u) at (0,0) {Utilisateur};
+\node[lifeline] (f) at (3.5,0) {Frontend React};
+\node[lifeline] (api) at (7,0) {API Django};
+\node[lifeline] (cnn) at (10.5,0) {CNN Keras};
+\node[lifeline] (db) at (14,0) {SQLite};
+\foreach \x in {0,3.5,7,10.5,14} \draw[dashed] (\x,-0.5) -- (\x,-7.2);
+\draw[msg] (0,-1) -- node[above]{Choisir image} (3.5,-1);
+\draw[msg] (3.5,-2) -- node[above]{POST /analysis/upload} (7,-2);
+\draw[msg] (7,-3) -- node[above]{Créer AnalysisLog} (14,-3);
+\draw[ret] (7,-3.6) -- node[above]{id} (14,-3.6);
+\node[note] at (7,-4.4) {Prétraitement\\224x224, RGB, normalisation};
+\draw[msg] (7,-5.2) -- node[above]{Tensor image} (10.5,-5.2);
+\draw[ret] (7,-5.8) -- node[above]{Top 3 probabilités} (10.5,-5.8);
+\draw[msg] (7,-6.4) -- node[above]{Sauvegarder diagnostic} (14,-6.4);
+\draw[ret] (3.5,-7) -- node[above]{JSON résultat} (7,-7);
+\end{tikzpicture}
+\caption{Séquence d'analyse d'une image de plante}
+\end{figure}
+
+\section{Diagramme d'activité : recommandation de culture}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  node distance=1cm,
+  step/.style={draw,rounded corners,align=center,minimum width=5.2cm,minimum height=0.8cm,fill=sfGray},
+  decision/.style={draw,diamond,aspect=2,align=center,fill=yellow!12},
+  arrow/.style={-Latex}
+]
+\node[step] (start) {Saisie localisation};
+\node[step,below=of start] (geo) {Géocodage Open-Meteo};
+\node[decision,below=of geo] (weather) {Météo disponible ?};
+\node[step,below=of weather] (soil) {Récupération sol local ou valeurs par défaut};
+\node[decision,below=of soil] (manual) {Mode manuel ?};
+\node[step,below left=1cm and 0.3cm of manual] (override) {Surcharge NPK, pH, température, humidité};
+\node[step,below right=1cm and 0.3cm of manual] (features) {Construire vecteur features};
+\node[step,below=2.2cm of manual] (predict) {Prédiction Random Forest};
+\node[step,below=of predict] (advice) {Conseils agro-climatiques};
+\node[step,below=of advice] (json) {Réponse JSON};
+\node[step,right=3.2cm of weather] (error) {Erreur 503};
+
+\draw[arrow] (start) -- (geo);
+\draw[arrow] (geo) -- (weather);
+\draw[arrow] (weather) -- node[right]{Oui} (soil);
+\draw[arrow] (weather) -- node[above]{Non} (error);
+\draw[arrow] (soil) -- (manual);
+\draw[arrow] (manual) -- node[left]{Oui} (override);
+\draw[arrow] (manual) -- node[right]{Non} (features);
+\draw[arrow] (override) |- (predict);
+\draw[arrow] (features) |- (predict);
+\draw[arrow] (predict) -- (advice);
+\draw[arrow] (advice) -- (json);
+\end{tikzpicture}
+\caption{Activité de recommandation de culture}
+\end{figure}
+
+\chapter{Architecture technique}
+
+\section{Vue globale}
+Smart Firma suit une architecture trois tiers :
+\begin{itemize}[noitemsep]
+  \item \textbf{Présentation} : React 19, TypeScript, React Router, Axios et composants UI ;
+  \item \textbf{Métier/API} : Django 4.2.7, Django REST Framework, applications modulaires ;
+  \item \textbf{Données et modèles} : SQLite, fichiers médias, modèles \texttt{.pkl} et \texttt{.h5}.
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw,rounded corners,minimum width=4cm,minimum height=1cm,align=center,fill=sfGray},
+  api/.style={draw,rounded corners,minimum width=4.4cm,minimum height=1cm,align=center,fill=blue!8},
+  ml/.style={draw,rounded corners,minimum width=4cm,minimum height=1cm,align=center,fill=green!9},
+  arrow/.style={-Latex,thick}
+]
+\node[box] (react) {Frontend React\\TypeScript};
+\node[api,right=2.2cm of react] (django) {Backend Django REST\\Auth, Weather, News, Analysis};
+\node[box,below=1.2cm of django] (db) {SQLite\\Users, Messages, Logs};
+\node[ml,right=2.2cm of django] (models) {Modèles ML\\Random Forest + CNN};
+\node[box,above=1.2cm of django] (external) {APIs externes\\Open-Meteo, NewsAPI, OpenAI};
+\draw[arrow] (react) -- node[above]{HTTP/JSON} (django);
+\draw[arrow] (django) -- (db);
+\draw[arrow] (django) -- (models);
+\draw[arrow] (django) -- (external);
+\end{tikzpicture}
+\caption{Architecture globale de Smart Firma}
+\end{figure}
+
+\section{Structure du backend}
+Le backend est un projet Django nommé \texttt{smartfirma}. Il contient les applications suivantes :
+\begin{itemize}[noitemsep]
+  \item \texttt{authentication} : modèle utilisateur personnalisé, inscription, connexion, profil ;
+  \item \texttt{messaging} : messages entrants, envoyés, détails, suppression, compteur non lu ;
+  \item \texttt{weather} : météo actuelle et prévisions via Open-Meteo/OpenWeatherMap ;
+  \item \texttt{news} : actualités via NewsAPI ;
+  \item \texttt{analysis} : analyse d'image par CNN et historique ;
+  \item \texttt{chatbot} : assistant agricole basé sur l'API OpenAI ;
+  \item \texttt{crops} : recommandation de cultures par Random Forest.
+\end{itemize}
+
+\section{Structure du frontend}
+Le frontend est une application React/TypeScript. Les routes principales sont :
+\begin{itemize}[noitemsep]
+  \item \texttt{/} : page d'accueil ;
+  \item \texttt{/login}, \texttt{/register} : authentification ;
+  \item \texttt{/dashboard}, \texttt{/admin-dashboard} : tableaux de bord ;
+  \item \texttt{/weather} : météo ;
+  \item \texttt{/chatbot} : assistant agricole ;
+  \item \texttt{/analysis} : diagnostic de maladies ;
+  \item \texttt{/recommendation} : recommandation de cultures.
+\end{itemize}
+
+\section{Sécurité}
+La sécurité applicative est assurée par :
+\begin{itemize}[noitemsep]
+  \item \texttt{TokenAuthentication} et \texttt{SessionAuthentication} ;
+  \item permissions \texttt{IsAuthenticated}, \texttt{AllowAny} et \texttt{IsAdminUser} ;
+  \item CORS restreint à l'origine frontend ;
+  \item variables sensibles dans \texttt{.env} : clés API et clé secrète Django ;
+  \item validation du type image et limitation de taille à 10 MB pour l'analyse.
+\end{itemize}
+
+\chapter{Réalisation et modules applicatifs}
+
+\section{Authentification}
+Le modèle \texttt{User} étend \texttt{AbstractUser} et ajoute les champs \texttt{role}, \texttt{phone}, \texttt{avatar}, \texttt{created\_at} et \texttt{updated\_at}. Les endpoints permettent l'inscription, la connexion, la déconnexion, la consultation et la mise à jour du profil.
+
+\section{Messagerie}
+Le module \texttt{messaging} gère les messages internes entre utilisateurs. Chaque message contient un expéditeur, un destinataire, un sujet, un contenu, un état de lecture et des dates de création/mise à jour. Le système vérifie qu'un utilisateur ne peut consulter que les messages qu'il a envoyés ou reçus.
+
+\section{Météo}
+Le module météo utilise prioritairement Open-Meteo. Il récupère les coordonnées d'une ville puis interroge les données de température, humidité, vent, code météo et prévisions. En cas d'échec, un mécanisme de secours peut utiliser OpenWeatherMap ou des données simulées.
+
+\section{Actualités}
+Le module \texttt{news} consomme NewsAPI afin de retourner des articles filtrés par catégorie, pays et taille de page.
+
+\section{Chatbot agricole}
+Le chatbot utilise l'API OpenAI avec un contexte système spécialisé en agriculture tunisienne : cultures locales, irrigation, maladies, pratiques durables et programmes agricoles. Les conversations sont enregistrées dans la base.
+
+\section{Analyse de plantes}
+L'utilisateur téléverse une image. Le backend crée un \texttt{AnalysisLog}, prétraite l'image, exécute le CNN, extrait les trois classes les plus probables, associe les recommandations agronomiques et sauvegarde le résultat.
+
+\chapter{Analyse Machine Learning}
+
+\section{Vue d'ensemble}
+Le projet intègre deux familles de modèles :
+\begin{itemize}[noitemsep]
+  \item un \textbf{RandomForestClassifier} pour recommander des cultures selon les variables agro-climatiques ;
+  \item un \textbf{réseau de neurones convolutif} pour classifier les maladies de plantes à partir d'images.
+\end{itemize}
+
+\section{Datasets de recommandation de cultures}
+Deux jeux de données sont présents :
+\begin{table}[H]
+\centering
+\caption{Datasets tabulaires de recommandation}
+\begin{tabular}{p{4.2cm}p{2cm}p{2cm}p{5.2cm}}
+\toprule
+\textbf{Fichier} & \textbf{Lignes} & \textbf{Classes} & \textbf{Variables} \\
+\midrule
+\texttt{Crop\_recommendation.csv} & 2200 & 22 & N, P, K, température, humidité, pH, rainfall, label. \\
+\texttt{crop\_recommendation\_tunisia.csv} & 1710 & 11 & Même structure, cultures adaptées aux zones tunisiennes. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Dataset général}
+Le dataset général contient 22 cultures, chacune représentée par 100 observations : \texttt{rice}, \texttt{maize}, \texttt{chickpea}, \texttt{kidneybeans}, \texttt{pigeonpeas}, \texttt{mothbeans}, \texttt{mungbean}, \texttt{blackgram}, \texttt{lentil}, \texttt{pomegranate}, \texttt{banana}, \texttt{mango}, \texttt{grapes}, \texttt{watermelon}, \texttt{muskmelon}, \texttt{apple}, \texttt{orange}, \texttt{papaya}, \texttt{coconut}, \texttt{cotton}, \texttt{jute} et \texttt{coffee}.
+
+\subsection{Dataset tunisien}
+Le dataset tunisien est généré dans \texttt{crops/models\_tunisia.py}. Il modélise trois zones agro-écologiques :
+\begin{itemize}[noitemsep]
+  \item Nord humide/sub-humide : olivier, agrumes, blé tendre, fèves ;
+  \item Centre semi-aride : blé dur, orge, olivier, pois chiche ;
+  \item Sud aride/oasien : dattes, olivier, amandier, figuier de barbarie, pêcher.
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\caption{Distribution du dataset tunisien}
+\begin{tabular}{lrlr}
+\toprule
+\textbf{Culture} & \textbf{Occurrences} & \textbf{Culture} & \textbf{Occurrences} \\
+\midrule
+olive & 420 & bledur & 250 \\
+dattes & 220 & orge & 180 \\
+agrumes & 150 & ble\_tendre & 120 \\
+pois\_chiche & 100 & feves & 80 \\
+amandier & 80 & figuier\_barbarie & 60 \\
+pecher & 50 & & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Variables d'entrée}
+Les variables exploitées sont :
+\begin{itemize}[noitemsep]
+  \item \textbf{N} : azote du sol ;
+  \item \textbf{P} : phosphore ;
+  \item \textbf{K} : potassium ;
+  \item \textbf{temperature} : température en degrés Celsius ;
+  \item \textbf{humidity} : humidité relative ;
+  \item \textbf{ph} : acidité/alcalinité du sol ;
+  \item \textbf{rainfall} : pluviométrie.
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\caption{Statistiques descriptives du dataset tunisien}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Variable} & \textbf{Min} & \textbf{Moyenne} & \textbf{Max} \\
+\midrule
+N & 20.00 & 57.39 & 89.00 \\
+P & 20.00 & 43.78 & 74.00 \\
+K & 35.00 & 73.20 & 119.00 \\
+temperature & 12.07 & 22.25 & 34.98 \\
+humidity & 40.01 & 59.55 & 84.96 \\
+ph & 6.80 & 7.88 & 8.80 \\
+rainfall & 80.19 & 335.48 & 697.59 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Prétraitement}
+\subsection{Données tabulaires}
+Le prétraitement tabulaire consiste à séparer les features et le label :
+\begin{lstlisting}[language=Python]
+X = df[['N','P','K','temperature','humidity','ph','rainfall']]
+y = df['label']
+\end{lstlisting}
+Le modèle Random Forest accepte les valeurs numériques sans normalisation obligatoire. En production, les valeurs peuvent provenir de la base sol, de l'API météo ou du formulaire manuel.
+
+\subsection{Images}
+Le prétraitement des images est défini dans \texttt{analysis/views.py} :
+\begin{itemize}[noitemsep]
+  \item ouverture de l'image avec PIL ;
+  \item redimensionnement à \texttt{224 x 224} pixels ;
+  \item conversion en RGB si nécessaire ;
+  \item conversion en tableau \texttt{float32} ;
+  \item normalisation des pixels dans l'intervalle \([0,1]\) ;
+  \item ajout d'une dimension batch.
+\end{itemize}
+
+\section{Feature engineering}
+\subsection{Recommandation de cultures}
+Le feature engineering repose sur la construction d'un vecteur agro-climatique unifié. En mode automatique, la localisation fournit :
+\begin{itemize}[noitemsep]
+  \item des valeurs de sol prédéfinies par ville tunisienne : N, P, K, pH, type et région ;
+  \item des données météorologiques actuelles et prévisionnelles : température, humidité, pluie prévue sur trois jours.
+\end{itemize}
+En mode manuel, l'utilisateur peut surcharger N, P, K, pH, température et humidité. Le système produit alors le vecteur :
+\[
+X = [N, P, K, temperature, humidity, ph, rainfall]
+\]
+
+\subsection{Détection de maladies}
+Pour le CNN, le feature engineering est appris automatiquement par les couches convolutives. Les premières couches détectent des motifs simples (bords, textures, couleurs), tandis que les couches plus profondes apprennent des symptômes visuels plus complexes : taches, nécroses, jaunissement, moisissures ou motifs de feuilles.
+
+\section{Entraînement}
+\subsection{Modèle Random Forest général}
+Le fichier \texttt{crops/models.py} entraîne un \texttt{RandomForestClassifier} avec :
+\begin{itemize}[noitemsep]
+  \item \texttt{n\_estimators=100} ;
+  \item \texttt{random\_state=42} ;
+  \item sauvegarde dans \texttt{crop\_model.pkl}.
+\end{itemize}
+
+\subsection{Modèle Random Forest Tunisie}
+Le modèle tunisien utilise :
+\begin{itemize}[noitemsep]
+  \item \texttt{n\_estimators=200} ;
+  \item \texttt{max\_depth=15} ;
+  \item \texttt{min\_samples\_split=5} ;
+  \item \texttt{random\_state=42} ;
+  \item validation croisée à 5 plis ;
+  \item sauvegarde dans \texttt{crop\_model\_tunisia.pkl}.
+\end{itemize}
+
+\subsection{Modèle CNN de maladies}
+Le fichier \texttt{plant\_disease\_cnn.h5} contient un modèle Keras séquentiel. Son architecture inspectée est :
+\begin{itemize}[noitemsep]
+  \item entrée : \texttt{224 x 224 x 3} ;
+  \item convolution 32 filtres \(3 \times 3\), ReLU ;
+  \item max-pooling \(2 \times 2\) ;
+  \item convolution 64 filtres \(3 \times 3\), ReLU ;
+  \item max-pooling \(2 \times 2\) ;
+  \item convolution 128 filtres \(3 \times 3\), ReLU ;
+  \item max-pooling \(2 \times 2\) ;
+  \item flatten ;
+  \item dense 128, ReLU ;
+  \item dropout 0.5 ;
+  \item dense 38, softmax.
+\end{itemize}
+Le modèle a été compilé avec la perte \texttt{categorical\_crossentropy}, l'optimiseur Adam avec un taux d'apprentissage de 0.001 et la métrique \texttt{accuracy}.
+
+\section{Evaluation et métriques}
+\subsection{Random Forest}
+Les métriques mesurées localement sur les datasets présents sont :
+\begin{table}[H]
+\centering
+\caption{Evaluation des modèles de recommandation}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Modèle} & \textbf{CV moyenne} & \textbf{Ecart-type CV} & \textbf{Accuracy holdout} \\
+\midrule
+\texttt{crop\_model.pkl} & 0.9945 & 0.0034 & 0.9955 \\
+\texttt{crop\_model\_tunisia.pkl} & 0.9444 & 0.0256 & 0.9561 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Les métriques pertinentes pour ce type de classification sont :
+\begin{itemize}[noitemsep]
+  \item \textbf{Accuracy} : proportion de prédictions correctes ;
+  \item \textbf{Precision} : fiabilité des prédictions positives par culture ;
+  \item \textbf{Recall} : capacité à retrouver toutes les observations d'une culture ;
+  \item \textbf{F1-score} : compromis entre précision et rappel ;
+  \item \textbf{Matrice de confusion} : identification des cultures confondues.
+\end{itemize}
+
+\subsection{Importance des variables}
+\begin{table}[H]
+\centering
+\caption{Importances du modèle tunisien}
+\begin{tabular}{lr}
+\toprule
+\textbf{Variable} & \textbf{Importance} \\
+\midrule
+K & 0.2222 \\
+N & 0.1981 \\
+rainfall & 0.1658 \\
+P & 0.1394 \\
+humidity & 0.1146 \\
+temperature & 0.0877 \\
+ph & 0.0721 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Le potassium, l'azote et la pluviométrie sont les variables les plus influentes dans le modèle tunisien. Cela est cohérent avec les cultures retenues : dattes, oliviers, céréales, agrumes et cultures arides dépendent fortement de la disponibilité hydrique et de la fertilité minérale.
+
+\subsection{CNN}
+Le CNN retourne un vecteur de probabilités sur 38 classes. L'API extrait les trois classes les plus probables avec \texttt{np.argsort}. Les métriques à suivre pour un déploiement complet sont :
+\begin{itemize}[noitemsep]
+  \item accuracy globale ;
+  \item top-3 accuracy ;
+  \item precision, recall et F1-score par maladie ;
+  \item matrice de confusion ;
+  \item temps moyen d'inférence ;
+  \item taux de confiance faible nécessitant une validation humaine.
+\end{itemize}
+
+\section{Déploiement ML dans l'application}
+\subsection{Déploiement du modèle de recommandation}
+Au démarrage du module \texttt{crops}, le modèle \texttt{crop\_model\_tunisia.pkl} est chargé avec \texttt{joblib.load}. L'endpoint \texttt{/crops/predict\_crop/} reçoit la localisation, récupère météo et sol, construit un \texttt{DataFrame} compatible avec le modèle, puis retourne :
+\begin{itemize}[noitemsep]
+  \item la culture recommandée ;
+  \item la confiance en pourcentage ;
+  \item deux alternatives ;
+  \item les données météo et sol utilisées ;
+  \item des conseils techniques.
+\end{itemize}
+
+\subsection{Déploiement du CNN}
+Le CNN est chargé de manière paresseuse : la variable globale \texttt{\_model} évite de recharger le fichier \texttt{plant\_disease\_cnn.h5} à chaque requête. Le déploiement se fait dans l'endpoint \texttt{/api/analysis/upload/}. Le système vérifie le fichier, prétraite l'image, lance l'inférence, sauvegarde le résultat et retourne un JSON structuré.
+
+\section{Limites et améliorations ML}
+Les principales limites observées sont :
+\begin{itemize}[noitemsep]
+  \item le dataset tunisien est synthétique et doit être enrichi avec des données terrain ;
+  \item les valeurs de sol par ville sont fixes et ne remplacent pas une analyse réelle ;
+  \item le CNN dépend de la qualité de l'image et du domaine d'entraînement ;
+  \item les métriques du CNN ne sont pas stockées dans le projet sous forme de rapport d'entraînement ;
+  \item la calibration des probabilités devrait être vérifiée avant usage critique.
+\end{itemize}
+
+Les améliorations proposées sont :
+\begin{itemize}[noitemsep]
+  \item intégrer des données réelles issues d'analyses de sol ;
+  \item ajouter une matrice de confusion et des rapports de classification versionnés ;
+  \item mettre en place un pipeline ML reproductible ;
+  \item utiliser un modèle CNN préentraîné de type EfficientNet ou MobileNetV2 pour améliorer la robustesse ;
+  \item ajouter un seuil de confiance déclenchant une recommandation de consultation d'un agronome.
+\end{itemize}
+
+\chapter{Base de données}
+
+\section{Modèle logique}
+La base SQLite contient les tables Django standards et les tables applicatives. Les entités principales sont \texttt{User}, \texttt{Message}, \texttt{AnalysisLog} et \texttt{ChatMessage}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  entity/.style={draw,rounded corners,minimum width=4cm,align=left,fill=sfGray},
+  rel/.style={-Latex}
+]
+\node[entity] (u) {\textbf{User}\\id PK\\username\\role\\phone\\avatar};
+\node[entity,right=2cm of u] (m) {\textbf{Message}\\id PK\\sender FK\\recipient FK\\subject\\content\\is\_read};
+\node[entity,below=1.5cm of u] (a) {\textbf{AnalysisLog}\\id PK\\user FK\\image\\result JSON\\confidence\\processing\_time};
+\node[entity,right=2cm of a] (c) {\textbf{ChatMessage}\\id PK\\user FK\\message\\response\\created\_at};
+\draw[rel] (u) -- node[above]{1,N} (m);
+\draw[rel] (u) -- node[left]{1,N} (a);
+\draw[rel] (u) -- node[above]{1,N} (c);
+\end{tikzpicture}
+\caption{Schéma logique simplifié de la base}
+\end{figure}
+
+\chapter{Tests et validation}
+
+\section{Tests fonctionnels}
+Les scénarios de validation comprennent :
+\begin{itemize}[noitemsep]
+  \item inscription et connexion d'un utilisateur ;
+  \item accès refusé aux endpoints protégés sans authentification ;
+  \item récupération météo pour une ville valide ;
+  \item recommandation culture en mode automatique ;
+  \item recommandation culture en mode manuel ;
+  \item rejet d'un fichier non image ;
+  \item rejet d'une image dépassant 10 MB ;
+  \item sauvegarde de l'historique d'analyse ;
+  \item envoi, consultation et suppression d'un message.
+\end{itemize}
+
+\section{Tests ML}
+Les tests ML réalisés sur les fichiers disponibles montrent une accuracy élevée pour les modèles Random Forest. Le modèle tunisien atteint une validation croisée moyenne de 94,44 \% et une accuracy holdout de 95,61 \%. Pour le CNN, le projet contient le modèle déployé et la liste des 38 classes, mais le rapport d'entraînement complet n'est pas fourni dans le dépôt ; les métriques recommandées doivent être calculées sur un jeu de test indépendant.
+
+\chapter{Déploiement}
+
+\section{Environnement}
+Le backend nécessite Python, Django, Django REST Framework, TensorFlow, Pillow, NumPy et Requests. Le frontend nécessite Node.js, React, TypeScript, Axios et React Router.
+
+\section{Configuration}
+Les variables sensibles sont externalisées :
+\begin{itemize}[noitemsep]
+  \item \texttt{SECRET\_KEY} ;
+  \item \texttt{DEBUG} ;
+  \item \texttt{CORS\_ALLOWED\_ORIGINS} ;
+  \item \texttt{OPENWEATHER\_API\_KEY} ;
+  \item \texttt{NEWS\_API\_KEY} ;
+  \item \texttt{OPENAI\_API\_KEY}.
+\end{itemize}
+
+\section{Procédure de lancement}
+\begin{lstlisting}[language=bash]
+# Backend
+cd backend
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+
+# Frontend
+cd frontend
+npm install
+npm start
+\end{lstlisting}
+
+\section{Recommandations de production}
+Pour un déploiement réel, il est recommandé de :
+\begin{itemize}[noitemsep]
+  \item remplacer SQLite par PostgreSQL ;
+  \item configurer \texttt{DEBUG=False} ;
+  \item stocker les médias dans un service de fichiers fiable ;
+  \item servir Django via Gunicorn/Uvicorn derrière Nginx ;
+  \item séparer le service d'inférence ML si la charge augmente ;
+  \item journaliser les erreurs d'inférence et les latences ;
+  \item mettre en place HTTPS et rotation des clés API.
+\end{itemize}
+
+\chapter{Conclusion générale}
+
+Smart Firma répond à un besoin concret : centraliser des services numériques utiles pour l'agriculture tunisienne et intégrer l'intelligence artificielle dans des workflows simples. Le projet combine un backend Django REST, un frontend React/TypeScript et deux modèles ML complémentaires. Le premier recommande des cultures selon les caractéristiques agro-climatiques ; le second détecte des maladies à partir d'images et fournit des recommandations de traitement et de prévention.
+
+L'analyse du projet montre une architecture claire, modulaire et extensible. Les résultats du modèle Random Forest tunisien sont encourageants avec une accuracy holdout de 95,61 \%. Le CNN est correctement intégré au backend avec prétraitement, inférence, top-3 et journalisation. Toutefois, l'amélioration future la plus importante concerne la qualité des données : enrichir les datasets avec des observations terrain, documenter les expérimentations et ajouter un suivi de performance continu.
+
+En perspective, la plateforme peut évoluer vers un système d'aide à la décision agricole complet : recommandations saisonnières, suivi parcellaire, alertes personnalisées, intégration IoT, modèles ML réentraînés périodiquement et validation agronomique par des experts locaux.
+
+\begin{thebibliography}{9}
+\bibitem{django} Django Software Foundation, \textit{Django Documentation}, version 4.2.
+\bibitem{drf} Encode OSS, \textit{Django REST Framework Documentation}.
+\bibitem{react} Meta Open Source, \textit{React Documentation}.
+\bibitem{tensorflow} TensorFlow, \textit{Keras API Documentation}.
+\bibitem{sklearn} Scikit-learn, \textit{RandomForestClassifier Documentation}.
+\bibitem{openmeteo} Open-Meteo, \textit{Weather Forecast API Documentation}.
+\end{thebibliography}
+
+\appendix
+\chapter{Annexe : endpoints principaux}
+\begin{longtable}{p{5cm}p{9cm}}
+\caption{Endpoints API}\\
+\toprule
+\textbf{Endpoint} & \textbf{Rôle} \\
+\midrule
+\texttt{/api/auth/register/} & Inscription utilisateur. \\
+\texttt{/api/auth/login/} & Connexion et génération du token. \\
+\texttt{/api/auth/profile/} & Consultation du profil. \\
+\texttt{/api/weather/current/} & Météo actuelle. \\
+\texttt{/api/weather/forecast/} & Prévisions météo. \\
+\texttt{/api/news/} & Actualités. \\
+\texttt{/api/analysis/upload/} & Upload et analyse image. \\
+\texttt{/api/analysis/history/} & Historique des analyses. \\
+\texttt{/api/chatbot/chat/} & Chatbot agricole. \\
+\texttt{/api/messaging/inbox/} & Messages reçus. \\
+\texttt{/crops/predict\_crop/} & Recommandation de culture. \\
+\texttt{/crops/locations/} & Liste des villes disponibles. \\
+\bottomrule
+\end{longtable}
+
+\chapter{Annexe : classes du CNN}
+Le modèle de maladies végétales couvre 38 classes, notamment : pommier sain ou malade, myrtillier sain, cerisier, maïs, vigne, orange, pêcher, poivron, pomme de terre, framboisier, soja, courge, fraisier et tomate avec plusieurs maladies telles que tavelure, black rot, rouille, mildiou, alternariose, septoriose, acariens, virus TYLCV et virus de la mosaïque.
+
+\end{document}
